@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الـ Form و Input و Select و Anchor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Readex+Pro:wght@500;600&display=swap">
+<style>
+/* Layout: عنوان ثم ٦ تبويبات (form / input و label / attributes / select / كلاسات Bootstrap / anchor). نفس تصميم ديمو الجداول. */
+:root {
+  --bg: #0a1020;
+  --surface: #111a30;
+  --surface2: #17223d;
+  --line: #243252;
+  --fg: #e8eefb;
+  --muted: #94a3c4;
+  --accent: #5b93ff;
+  --hl: rgba(91, 147, 255, .22);
+  --ok: #7ad99b;
+  --warn: #ff9a5c;
+  --err: #ff7b7b;
+  --c-html: #ff9a5c;
+  --c-css: #5b93ff;
+  --c-js: #f4cf57;
+  --c-cs: #c79bff;
+  --code-bg: #0d1528;
+  --code-fg: #cfd9ee;
+  --tk-tag: #ff9a5c;
+  --tk-punc: #7384a8;
+  --tk-attr: #9fd3ff;
+  --tk-str: #a6e3a1;
+  --tk-com: #6f7fa3;
+  --tk-kw: #c79bff;
+  --tk-num: #f4cf57;
+  --display: 'Readex Pro', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f6fc; --surface: #ffffff; --surface2: #eaf0fb; --line: #d3dcee;
+    --fg: #0f1b33; --muted: #55637f; --accent: #2f6fe0; --hl: rgba(47, 111, 224, .14);
+    --ok: #2e7d32; --warn: #c2490f; --err: #c62828;
+    --c-html: #c2490f; --c-css: #2f6fe0; --c-js: #8f6c00; --c-cs: #7c3aed;
+    --code-bg: #f0f3fa; --code-fg: #1d2a44;
+    --tk-tag: #c2410c; --tk-punc: #7a869f; --tk-attr: #0b6fa8; --tk-str: #2e7d32;
+    --tk-com: #7a869f; --tk-kw: #7c3aed; --tk-num: #8f6c00;
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.7; }
+
+.wrap { max-width: 1100px; margin-inline: auto; padding-inline: 16px; padding-block: 28px 40px; }
+.brand { display: inline-block; direction: ltr; font-family: var(--mono); font-size: .85rem; color: var(--muted); }
+.brand .semi, .foot .semi { color: var(--accent); }
+.title { font-family: var(--display); font-weight: 600; font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.3; margin: 10px 0 8px; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; color: var(--muted); font-size: 1.05rem; }
+.sec-title { font-family: var(--display); font-weight: 600; font-size: 1.4rem; margin: 0; }
+.sub-title { font-family: var(--display); font-weight: 600; font-size: 1.15rem; margin: 6px 0 0; }
+.small { margin: 0; color: var(--muted); font-size: .88rem; }
+.note { margin: 0; max-width: 72ch; }
+code.i { direction: ltr; unicode-bidi: isolate; font-family: var(--mono); font-size: .88em; color: var(--accent); background: var(--surface2); border-radius: 6px; padding: 1px 6px; }
+
+.modes { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 24px 4px; }
+.mode { appearance: none; font: inherit; color: var(--muted); cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 18px; display: flex; gap: 8px; align-items: baseline; }
+.mode b { font-family: var(--mono); font-weight: 500; font-size: .8rem; color: var(--accent); }
+.mode:hover { background: var(--surface2); }
+.mode[aria-selected="true"] { color: var(--fg); background: var(--surface2); border-color: var(--accent); }
+.panel { display: grid; gap: 16px; margin-top: 18px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { --layer: var(--accent); appearance: none; text-align: start; font: inherit; color: inherit; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; display: grid; gap: 0; min-width: 0; }
+.chip .lbl { direction: ltr; justify-self: start; font-family: var(--mono); font-size: .8rem; font-weight: 500; color: var(--layer); }
+.chip .role { font-family: var(--display); font-weight: 600; font-size: 1rem; }
+.chip[data-layer="html"] { --layer: var(--c-html); }
+.chip[data-layer="css"] { --layer: var(--c-css); }
+.chip[data-layer="js"] { --layer: var(--c-js); }
+.chip[data-layer="cs"] { --layer: var(--c-cs); }
+.chip:hover { background: var(--surface2); }
+.chip[aria-pressed="true"] { background: var(--surface2); border-color: var(--layer); box-shadow: inset 0 -3px 0 var(--layer); }
+.chip.sw[aria-pressed="true"] .lbl::before { content: "✓ "; }
+
+.say { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.analogy { font-family: var(--display); font-weight: 600; font-size: .95rem; color: var(--accent); white-space: nowrap; }
+.say-text { margin: 0; flex: 1 1 320px; min-width: 0; max-width: 72ch; }
+
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+
+.code { border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.tabs { display: flex; gap: 2px; padding: 8px 8px 0; background: var(--surface2); border-bottom: 1px solid var(--line); direction: ltr; overflow-x: auto; }
+.tab { --layer: var(--muted); appearance: none; border: 0; background: transparent; color: var(--muted); font-family: var(--mono); font-size: .8rem; padding: 8px 12px; border-radius: 8px 8px 0 0; cursor: pointer; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+.tab[data-layer="html"] { --layer: var(--c-html); }
+.tab[data-layer="css"] { --layer: var(--c-css); }
+.tab[data-layer="js"] { --layer: var(--c-js); }
+.tab[data-layer="cs"] { --layer: var(--c-cs); }
+.tab .sw { width: 8px; height: 8px; border-radius: 50%; background: var(--layer); }
+.tab[aria-selected="true"] { background: var(--code-bg); color: var(--fg); }
+.pre { flex: 1; margin: 0; padding: 14px 12px; direction: ltr; text-align: left; overflow: auto; font-family: var(--mono); font-size: .82rem; line-height: 1.75; color: var(--code-fg); white-space: pre; tab-size: 2; max-height: 540px; }
+.pre .ln { display: block; min-height: 1.75em; padding-inline: 6px; border-radius: 4px; border-left: 3px solid transparent; }
+.pre .ln.dim { opacity: .4; }
+.pre .ln.on { background: var(--hl); opacity: 1; border-left-color: var(--accent); }
+.pre .t { color: var(--tk-tag); } .pre .p { color: var(--tk-punc); } .pre .a { color: var(--tk-attr); }
+.pre .s { color: var(--tk-str); } .pre .c { color: var(--tk-com); font-style: italic; } .pre .k { color: var(--tk-kw); }
+.pre .n { color: var(--tk-num); } .pre .sel { color: var(--tk-tag); } .pre .prop { color: var(--tk-attr); }
+.pre .r { color: var(--tk-kw); font-weight: 500; }
+.pre.tight { max-height: none; }
+.cap { margin: 0; padding: 8px 14px; font-size: .85rem; color: var(--muted); border-top: 1px solid var(--line); background: var(--surface); }
+
+.frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
+.bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border-bottom: 1px solid var(--line); }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+.addr { flex: 1; min-width: 0; direction: ltr; font-family: var(--mono); font-size: .78rem; color: var(--muted); background: var(--bg); border-radius: 999px; padding: 3px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status { padding: 10px 14px; font-size: .9rem; color: var(--muted); border-top: 1px solid var(--line); background: var(--surface); min-height: 4.4em; }
+.pframe { width: 100%; height: 300px; border: 0; background: #fff; display: block; }
+
+/* the "raw browser" page: no author CSS at all */
+.plain { flex: 1; background: #fff; color: #000; font: 16px/normal "Times New Roman", Times, serif; padding: 8px 14px; min-height: 260px; overflow: auto; }
+.plain h1, .plain h2, .plain h3, .plain h4, .plain h5, .plain h6 { transition: none; }
+.plain .hi { outline: 2px solid #e8590c; outline-offset: 1px; background: rgba(255, 154, 92, .28); }
+.plain.debug table { outline: 1px dashed #1c7ed6; }
+.plain.debug thead, .plain.debug tbody, .plain.debug tfoot, .plain.debug caption { outline: 1px dashed #2f9e44; }
+.plain.debug tr { outline: 1px dashed #e8590c; }
+.plain.debug th, .plain.debug td { outline: 1px dashed #ae3ec9; }
+.plain table { margin-block: 6px; }
+
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { appearance: none; font: inherit; cursor: pointer; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 16px; }
+.btn:hover { background: var(--surface2); }
+.btn[aria-pressed="true"] { border-color: var(--accent); background: var(--surface2); }
+
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quad { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.tcard { --layer: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; align-content: start; }
+.tcard[data-layer="html"] { --layer: var(--c-html); }
+.tcard[data-layer="css"] { --layer: var(--c-css); }
+.tcard[data-layer="js"] { --layer: var(--c-js); }
+.tcard[data-layer="cs"] { --layer: var(--c-cs); }
+.tcard .ext { direction: ltr; justify-self: start; font-family: var(--mono); font-size: .85rem; color: var(--layer); }
+.tcard .q { font-family: var(--display); font-weight: 600; font-size: 1.05rem; }
+.tcard .d { color: var(--muted); font-size: .92rem; }
+.tcard .need { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.tag { font-family: var(--mono); font-size: .75rem; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tag.miss { color: var(--warn); border-color: var(--warn); }
+.tag.have { color: var(--ok); border-color: var(--ok); }
+
+.callout { background: var(--surface); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; }
+.warnbox { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; min-height: 3.2em; }
+.warnbox .w { color: var(--warn); }
+.warnbox .g { color: var(--ok); }
+
+.outline { list-style: none; margin: 0; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; display: grid; gap: 4px; }
+.outline li { display: flex; gap: 8px; align-items: baseline; }
+.outline .lv { direction: ltr; font-family: var(--mono); font-size: .75rem; color: var(--accent); border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; }
+
+.ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rung { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.rung .num { font-family: var(--mono); font-weight: 500; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface2); color: var(--accent); border: 1px solid var(--line); }
+.rung .h { font-family: var(--display); font-weight: 600; }
+.rung .q { color: var(--muted); font-size: .9rem; }
+.rung.done { border-color: var(--ok); }
+.rung.done .num { color: var(--ok); border-color: var(--ok); }
+.rung.next { border-color: var(--warn); box-shadow: inset 0 -3px 0 var(--warn); }
+.meter { height: 10px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--line); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); width: 0; }
+
+.foot { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); direction: ltr; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+button:focus-visible, .pre:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .trio { grid-template-columns: minmax(0, 1fr); } .rung { grid-template-columns: 34px 1fr; } .rung .btn { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+.plain .pr { margin-block: 8px; }
+.plain label { margin-inline-end: 4px; }
+.status.ml { white-space: pre-line; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">DotNetWithElwakeel<span class="semi">;</span></div>
+  <h1 class="title">الـ Form و الـ Input و الـ Select و الـ Anchor</h1>
+  <p class="lede">الـ <code class="i">&lt;form&gt;</code> هو الوعاء اللي بنجمع بيه بيانات اليوزر، وجواه الـ controls زي <code class="i">&lt;input&gt;</code> و <code class="i">&lt;label&gt;</code> و <code class="i">&lt;select&gt;</code>. هنفهم الـ attributes اللي بتضبط كل واحد فيهم، وكلاسات Bootstrap اللي بتزوّقهم، وبعدين تاج الـ <code class="i">&lt;a&gt;</code> اللي بينقل اليوزر بين الصفحات.</p>
+
+  <div class="modes" role="tablist" aria-label="أقسام الديمو">
+    <button class="mode" role="tab" data-p="1" aria-selected="true" type="button"><b>01</b>الـ form</button>
+    <button class="mode" role="tab" data-p="2" aria-selected="false" type="button"><b>02</b>input و label</button>
+    <button class="mode" role="tab" data-p="3" aria-selected="false" type="button"><b>03</b>الـ attributes</button>
+    <button class="mode" role="tab" data-p="4" aria-selected="false" type="button"><b>04</b>الـ select</button>
+    <button class="mode" role="tab" data-p="5" aria-selected="false" type="button"><b>05</b>كلاسات Bootstrap</button>
+    <button class="mode" role="tab" data-p="6" aria-selected="false" type="button"><b>06</b>الـ anchor</button>
+  </div>
+
+  <!-- ============ 01: form ============ -->
+  <section class="panel" id="p1" role="tabpanel">
+    <h2 class="sec-title">الـ form بيلم الحقول ويبعتها مرة واحدة</h2>
+    <p class="note">دوس على أي جزء وشوف مكانه في الكود. وبعدها املا الحقول على اليسار واضغط إرسال: هتشوف المتصفح بيبعت إيه بالظبط.</p>
+    <div class="chips" id="f1-chips" role="group" aria-label="أجزاء الفورم"></div>
+    <div class="say"><span class="analogy" id="p1-an"></span><p class="say-text" id="p1-say"></p></div>
+    <div class="ctrls">
+      <button class="btn" id="f1-get" type="button" aria-pressed="false">method="get"</button>
+      <button class="btn" id="f1-post" type="button" aria-pressed="true">method="post"</button>
+    </div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f1-code" aria-label="كود الفورم"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr" id="f1-addr">localhost:5000/register</div></div>
+        <div class="plain" id="f1-prev" dir="rtl">
+          <form id="f1-form">
+            <div class="pr"><label for="f1-u">الاسم:</label><input id="f1-u" type="text" name="username"></div>
+            <div class="pr"><label for="f1-e">الإيميل:</label><input id="f1-e" type="email" name="email"></div>
+            <div class="pr"><label for="f1-x">حقل من غير name:</label><input id="f1-x" type="text"></div>
+            <div class="pr"><button type="submit">إرسال</button></div>
+          </form>
+        </div>
+        <div class="status ml" id="f1-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="trio">
+      <div class="tcard" data-layer="html"><span class="ext">&lt;form&gt;</span><span class="q">وعاء مش حقل</span><span class="d">الـ form نفسه مبيعرضش حاجة. شغله إنه يجمع قيم الحقول اللي جواه وقت الإرسال.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">action + method</span><span class="q">فين وإزاي</span><span class="d"><code class="i">action</code> هي الوجهة، و <code class="i">method</code> هي طريقة الإرسال.</span></div>
+      <div class="tcard" data-layer="js"><span class="ext">name</span><span class="q">من غيره مفيش إرسال</span><span class="d">القيمة بتتبعت باسم الـ <code class="i">name</code>. حقل من غير name المتصفح بيتجاهله.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 02: input + label ============ -->
+  <section class="panel" id="p2" role="tabpanel" hidden>
+    <h2 class="sec-title">الـ input هو الحقل، والـ label هو اسمه</h2>
+    <p class="note">اختار نوع الـ input، وبعدين دوس على كلمة الـ label في الصفحة على اليسار. وبعدها فك الربط وشوف إيه اللي بيحصل.</p>
+    <div class="chips" id="f2-chips" role="group" aria-label="نوع الـ input"></div>
+    <div class="say"><span class="analogy" id="p2-an"></span><p class="say-text" id="p2-say"></p></div>
+    <div class="ctrls">
+      <button class="btn" id="f2-link" type="button" aria-pressed="true">🔗 ربط الـ label بالـ input (for = id)</button>
+    </div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f2-code" aria-label="كود label و input"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr">الشكل الافتراضي للمتصفح (من غير CSS)</div></div>
+        <div class="plain" id="f2-prev" dir="rtl"></div>
+        <div class="status" id="f2-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="trio">
+      <div class="tcard" data-layer="html"><span class="ext">&lt;input&gt;</span><span class="q">تاج من غير إغلاق</span><span class="d">مفيش <code class="i">&lt;/input&gt;</code>، لأنه مفيش حاجة جواه. كل شكله وسلوكه بيتحددوا بالـ attributes، وأهمها <code class="i">type</code>.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">&lt;label&gt;</span><span class="q">النص اللي بيوصف الحقل</span><span class="d">الضغط عليه بيدّي الفوكس للحقل المربوط بيه، وقارئ الشاشة بيقرأه لما يوصل للحقل.</span></div>
+      <div class="tcard" data-layer="js"><span class="ext">for = id</span><span class="q">الربط</span><span class="d">قيمة <code class="i">for</code> في الـ label لازم تساوي قيمة <code class="i">id</code> في الـ input. و id لازم يبقى فريد في الصفحة.</span></div>
+    </div>
+    <div class="callout">
+      <p class="note"><b>طريقة تانية للربط:</b> تلف الـ input جوا الـ label: <code class="i">&lt;label&gt;الاسم &lt;input type="text"&gt;&lt;/label&gt;</code> وساعتها مش محتاج for ولا id. بس الطريقة اللي فوق هي الأشهر مع Bootstrap.</p>
+    </div>
+  </section>
+
+  <!-- ============ 03: attributes ============ -->
+  <section class="panel" id="p3" role="tabpanel" hidden>
+    <h2 class="sec-title">الـ attribute معلومة إضافية جوا تاج الفتح</h2>
+    <div class="say"><span class="analogy">اسم = "قيمة"</span><p class="say-text">كل attribute ليه اسم وقيمة بين علامتين تنصيص، وبنكتبه جوا تاج الفتح بس. فيه نوع تاني اسمه boolean مبيحتاجش قيمة: وجوده لوحده كفاية يفعّله، زي <code class="i">required</code>.</p></div>
+    <div class="code">
+      <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>الشكل العام</span></div>
+      <pre class="pre tight" id="f3-anat" aria-label="شكل الـ attribute"></pre>
+    </div>
+
+    <h2 class="sec-title" style="margin-top:14px">شغّل attribute واحد واحد</h2>
+    <p class="note">كل زرار بيضيف attribute على الـ input. اكتب في الحقل واضغط Submit بعد ما تشغّل <code class="i">required</code>، أو <code class="i">disabled</code> وشوف إيه اللي بيتبعت.</p>
+    <div class="chips" id="f3-chips" role="group" aria-label="الـ attributes"></div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f3-code" aria-label="كود الـ input"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr">الشكل الافتراضي للمتصفح (من غير CSS)</div></div>
+        <div class="plain" id="f3-prev" dir="rtl"></div>
+        <div class="status ml" id="f3-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h2 class="sec-title" style="margin-top:14px">أهم attributes على الـ input</h2>
+    <div class="quad" id="f3-cards"></div>
+    <div class="callout">
+      <p class="note"><b>الفرق بين disabled و readonly:</b> <code class="i">disabled</code> الحقل مقفول وبيتجاهله الإرسال. <code class="i">readonly</code> اليوزر يشوف القيمة بس ميعدلهاش، لكن القيمة بتتبعت عادي.</p>
+    </div>
+  </section>
+
+  <!-- ============ 04: select ============ -->
+  <section class="panel" id="p4" role="tabpanel" hidden>
+    <h2 class="sec-title">الـ select قائمة اختيارات جاهزة</h2>
+    <p class="note">اختار من القائمة على اليسار وشوف الفرق بين النص اللي اليوزر بيشوفه والقيمة اللي بتتبعت. وجرّب تشغّل <code class="i">multiple</code>.</p>
+    <div class="chips" id="f4-chips" role="group" aria-label="أجزاء الـ select"></div>
+    <div class="say"><span class="analogy" id="p4-an"></span><p class="say-text" id="p4-say"></p></div>
+    <div class="ctrls">
+      <button class="btn" id="f4-multi" type="button" aria-pressed="false">multiple</button>
+    </div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f4-code" aria-label="كود الـ select"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr">الشكل الافتراضي للمتصفح (من غير CSS)</div></div>
+        <div class="plain" id="f4-prev" dir="rtl"></div>
+        <div class="status" id="f4-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="callout">
+      <p class="note"><b>اللي بيتبعت للسيرفر هو الـ value مش النص.</b> النص بيشوفه اليوزر، والـ <code class="i">value</code> بتشوفه الـ Controller. لو الـ option مفيهوش value بيتبعت النص نفسه.</p>
+    </div>
+  </section>
+
+  <!-- ============ 05: bootstrap form classes ============ -->
+  <section class="panel" id="p5" role="tabpanel" hidden>
+    <h2 class="sec-title">شغّل كلاسات الفورم واحدة واحدة</h2>
+    <p class="note">الصفحة اللي على اليسار شغالة على Bootstrap الحقيقي (من الـ CDN). شغّل الكلاسات وشوف الفرق، وجرّب كمان تطفي ملف Bootstrap نفسه.</p>
+    <div class="chips" id="f5-chips" role="group" aria-label="الكلاسات"></div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f5-code" tabindex="0" aria-label="كود الصفحة"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr">localhost:5000</div></div>
+        <iframe class="pframe" id="f5-frame" sandbox="" title="الفورم بعد تطبيق Bootstrap" style="height:380px"></iframe>
+        <div class="status" id="f5-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h2 class="sec-title" style="margin-top:14px">كل كلاس بيعمل إيه بالظبط</h2>
+    <div class="quad">
+      <div class="tcard" data-layer="html"><span class="ext">&lt;form&gt;</span><span class="q">ده تاج، مش كلاس</span><span class="d">مفيش كلاس اسمه <code class="i">form</code> محتاج تحطه. التاج <code class="i">&lt;form&gt;</code> شغال لوحده، وBootstrap بيزوّق اللي جواه.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">.form-label</span><span class="q">على الـ label</span><span class="d">بيدّي النص مسافة تحته عشان ميلزقش في الحقل.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">.form-control</span><span class="q">على الـ input</span><span class="d">بيخلي الحقل ياخد العرض كامل، بحواف مدورة وpadding وإطار، وبيضيء الإطار لما تركّز فيه. بيتحط كمان على <code class="i">textarea</code>.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">.form-select</span><span class="q">على الـ select</span><span class="d">نفس فكرة form-control بس للـ select، وبيرسم سهم القائمة. متحطش form-control على select.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">.mb-3</span><span class="q">على الـ div اللي حوالين الحقل</span><span class="d">margin-bottom: مسافة بين كل حقل واللي بعده. <code class="i">mb</code> = margin-bottom و <code class="i">3</code> = حجم المسافة.</span></div>
+      <div class="tcard" data-layer="js"><span class="ext">.btn .btn-primary</span><span class="q">على الـ button</span><span class="d">كلاسين مع بعض: <code class="i">btn</code> هو الشكل الأساسي للزرار، و <code class="i">btn-primary</code> هو اللون الأزرق.</span></div>
+    </div>
+    <div class="callout">
+      <p class="note"><b>الكلاس مجرد اسم:</b> <code class="i">form-control</code> مبيعملش حاجة لوحده. هو اسم مربوط بقاعدة CSS جوا ملف Bootstrap، فلازم الملف يكون مربوط بالصفحة بـ <code class="i">&lt;link&gt;</code>. جرّب تطفي أول زرار فوق.</p>
+    </div>
+  </section>
+
+  <!-- ============ 06: anchor ============ -->
+  <section class="panel" id="p6" role="tabpanel" hidden>
+    <h2 class="sec-title">الـ anchor هو اللينك: href بيحدد يروح فين</h2>
+    <p class="note">اختار نوع الـ href، وبعدها دوس على اللينك في الصفحة على اليسار. الديمو هيقولك المتصفح كان هيعمل إيه (من غير ما يسيب الصفحة).</p>
+    <div class="chips" id="f6-chips" role="group" aria-label="أنواع href"></div>
+    <div class="say"><span class="analogy" id="p6-an"></span><p class="say-text" id="p6-say"></p></div>
+    <div class="ctrls">
+      <button class="btn" id="f6-blank" type="button" aria-pressed="false">target="_blank"</button>
+    </div>
+    <div class="grid2">
+      <div class="code">
+        <div class="tabs"><span class="tab" aria-selected="true" data-layer="html"><span class="sw"></span>index.html</span></div>
+        <pre class="pre tight" id="f6-code" aria-label="كود اللينك"></pre>
+      </div>
+      <div class="frame">
+        <div class="bar"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div><div class="addr" id="f6-addr">localhost:5000/index.html</div></div>
+        <div class="plain" id="f6-prev" dir="rtl"></div>
+        <div class="status" id="f6-status" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h2 class="sec-title" style="margin-top:14px">attributes الـ anchor</h2>
+    <div class="quad">
+      <div class="tcard" data-layer="html"><span class="ext">href</span><span class="q">الوجهة</span><span class="d">من غيره التاج مبيبقاش لينك قابل للضغط. القيمة ممكن تكون URL أو مسار أو <code class="i">#id</code> أو <code class="i">mailto:</code> أو <code class="i">tel:</code>.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">target</span><span class="q">يفتح فين</span><span class="d"><code class="i">_self</code> (الافتراضي) نفس التاب، و <code class="i">_blank</code> تاب جديد.</span></div>
+      <div class="tcard" data-layer="css"><span class="ext">rel="noopener"</span><span class="q">أمان</span><span class="d">بيتحط مع <code class="i">_blank</code> عشان الصفحة الجديدة متقدرش تتحكم في صفحتك.</span></div>
+      <div class="tcard" data-layer="js"><span class="ext">download</span><span class="q">نزّل بدل ما تفتح</span><span class="d">بيخلي المتصفح ينزّل الملف، وممكن تديله اسم الملف المطلوب.</span></div>
+    </div>
+    <div class="callout">
+      <p class="note"><b>a ولا button؟</b> الـ <code class="i">&lt;a&gt;</code> للتنقل: بياخدك مكان تاني. الـ <code class="i">&lt;button&gt;</code> للأكشن: بيعمل حاجة زي إرسال فورم. وتقدر تدّي الـ a شكل زرار بكلاسات Bootstrap: <code class="i">&lt;a class="btn btn-primary" href="..."&gt;</code>.</p>
+    </div>
+  </section>
+
+  <div class="foot">DotNetWithElwakeel<span class="semi">;</span> From concepts to business</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* ---------- highlighters ---------- */
+  function hlTag(s) {
+    return s.replace(/&lt;(\/?)([\w-]+)([^&]*?)&gt;/g, function (m, sl, name, attrs) {
+      attrs = attrs.replace(/([\w-]+)(?:=("[^"]*"))?/g, function (x, n, v) {
+        return '<span class=a>' + n + '</span>' + (v ? '=<span class=s>' + v + '</span>' : '');
+      });
+      return '<span class=p>&lt;' + sl + '</span><span class=t>' + name + '</span>' + attrs + '<span class=p>&gt;</span>';
+    });
+  }
+  function hlHtml(src) {
+    if (/^\s*<!--/.test(src)) return '<span class=c>' + esc(src) + '</span>';
+    return hlTag(esc(src));
+  }
+  /* <input على سطر، وكل attribute على سطره، و > على سطر */
+  function hlAttrLines(src) {
+    if (src === '<input') return '<span class=p>&lt;</span><span class=t>input</span>';
+    if (src === '>') return '<span class=p>&gt;</span>';
+    return esc(src).replace(/^(\s*)([\w-]+)(?:=("[^"]*"))?$/, function (m, sp, n, v) {
+      return sp + '<span class=a>' + n + '</span>' + (v ? '=<span class=s>' + v + '</span>' : '');
+    });
+  }
+  function renderLines(el, items, hl) {
+    el.innerHTML = items.map(function (it, i) {
+      var t = typeof it === 'string' ? it : it.t;
+      var p = typeof it === 'string' ? '' : (it.p || []).join(' ');
+      return '<span class="ln" data-i="' + i + '" data-p="' + p + '">' + hl(t) + '</span>';
+    }).join('');
+  }
+  function markLines(codeEl, sel) {
+    Array.prototype.forEach.call(codeEl.children, function (ln) {
+      if (!sel) { ln.classList.remove('on', 'dim'); return; }
+      var on = (' ' + ln.getAttribute('data-p') + ' ').indexOf(' ' + sel + ' ') >= 0;
+      ln.classList.toggle('on', on); ln.classList.toggle('dim', !on);
+    });
+  }
+  function markPrev(prevEl, selector) {
+    Array.prototype.forEach.call(prevEl.querySelectorAll('.hi'), function (n) { n.classList.remove('hi'); });
+    if (selector) Array.prototype.forEach.call(prevEl.querySelectorAll(selector), function (n) { n.classList.add('hi'); });
+  }
+  function chip(parent, layer, lbl, role, cls) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (cls ? ' ' + cls : ''); b.type = 'button'; b.setAttribute('data-layer', layer); b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<span class="lbl"></span><span class="role"></span>';
+    b.firstChild.textContent = lbl; b.lastChild.textContent = role;
+    parent.appendChild(b);
+    return b;
+  }
+  function pressOnly(parent, i) {
+    Array.prototype.forEach.call(parent.children, function (b, k) { b.setAttribute('aria-pressed', String(k === i)); });
+  }
+  function tcard(parent, layer, ext, q, d) {
+    var c = document.createElement('div');
+    c.className = 'tcard'; c.setAttribute('data-layer', layer);
+    c.innerHTML = '<span class="ext"></span><span class="q"></span><span class="d"></span>';
+    c.querySelector('.ext').textContent = ext; c.querySelector('.q').textContent = q; c.querySelector('.d').textContent = d;
+    parent.appendChild(c);
+  }
+
+  /* ---------- top tabs ---------- */
+  var modeBtns = Array.prototype.slice.call(document.querySelectorAll('.mode'));
+  modeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      modeBtns.forEach(function (x) {
+        var on = x === b;
+        x.setAttribute('aria-selected', String(on));
+        $('p' + x.getAttribute('data-p')).hidden = !on;
+      });
+    });
+  });
+
+  /* =====================================================
+     01 · form
+     ===================================================== */
+  var F1 = { sel: 'form', method: 'post' };
+  var F1_PARTS = [
+    { id: 'form', lbl: '<form>', role: 'الوعاء', layer: 'html', hi: 'form', an: 'الوعاء',
+      say: 'تاج بيلم الحقول وزرار الإرسال. لما اليوزر يدوس إرسال المتصفح بيجمع قيم الحقول اللي جواه ويبعتها مرة واحدة. أي حقل برا الـ form مبيتبعتش معاه.' },
+    { id: 'action', lbl: 'action', role: 'الوجهة', layer: 'css', hi: null, an: 'يتبعت فين',
+      say: 'العنوان (URL) اللي البيانات هتتبعتله. لو سبته فاضي بيتبعت لنفس الصفحة. في ASP.NET MVC ده بيبقى مسار الـ Action اللي هيستقبل البيانات.' },
+    { id: 'method', lbl: 'method', role: 'الطريقة', layer: 'css', hi: null, an: 'يتبعت إزاي',
+      say: 'get: البيانات بتتحط في الـ URL (مناسب للبحث). post: البيانات في جسم الطلب ومبتظهرش في الـ URL (مناسب للتسجيل والباسورد). جرّب الزرارين وابعت.' },
+    { id: 'name', lbl: 'name', role: 'اسم الحقل', layer: 'js', hi: 'input[name]', an: 'اسم المفتاح',
+      say: 'القيمة بتتبعت باسم الـ name، يعني السيرفر بيقرا username مش النص اللي اليوزر شايفه. وفي MVC الاسم ده لازم يطابق اسم الـ property في الـ Model.' },
+    { id: 'noname', lbl: 'من غير name', role: 'مش هيتبعت', layer: 'cs', hi: 'input:not([name])', an: 'بيتجاهله',
+      say: 'الحقل ده بيظهر عادي في الصفحة، بس المتصفح بيتجاهله وقت الإرسال. اكتب فيه حاجة وابعت: مش هتلاقيها في البيانات.' },
+    { id: 'submit', lbl: 'type="submit"', role: 'زرار الإرسال', layer: 'html', hi: 'button', an: 'اللي بيبعت',
+      say: 'الزرار من نوع submit (وده الافتراضي جوا الـ form) هو اللي بيطلق الإرسال. لو كتبت type="button" مش هيبعت حاجة.' }
+  ];
+  function f1Code() {
+    var all = ['form'];
+    return [
+      { t: '<form action="/register" method="' + F1.method + '">', p: all.concat(['action', 'method']) },
+      { t: '  <input type="text" name="username">', p: all.concat(['name']) },
+      { t: '  <input type="email" name="email">', p: all.concat(['name']) },
+      { t: '  <input type="text">', p: all.concat(['noname']) },
+      { t: '  <button type="submit">إرسال</button>', p: all.concat(['submit']) },
+      { t: '</form>', p: all }
+    ];
+  }
+  function f1Draw() {
+    renderLines($('f1-code'), f1Code(), hlHtml);
+    var part = F1_PARTS.filter(function (x) { return x.id === F1.sel; })[0];
+    markLines($('f1-code'), F1.sel);
+    markPrev($('f1-prev'), part.hi);
+    $('p1-an').textContent = part.an; $('p1-say').textContent = part.say;
+    pressOnly($('f1-chips'), F1_PARTS.indexOf(part));
+    $('f1-get').setAttribute('aria-pressed', String(F1.method === 'get'));
+    $('f1-post').setAttribute('aria-pressed', String(F1.method === 'post'));
+  }
+  F1_PARTS.forEach(function (p) {
+    chip($('f1-chips'), p.layer, p.lbl, p.role).addEventListener('click', function () { F1.sel = p.id; f1Draw(); });
+  });
+  ['get', 'post'].forEach(function (m) {
+    $('f1-' + m).addEventListener('click', function () {
+      F1.method = m; if (F1.sel === 'form') F1.sel = 'method';
+      $('f1-addr').textContent = 'localhost:5000/register'; $('f1-status').textContent = ''; f1Draw();
+    });
+  });
+  $('f1-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target), qs = new URLSearchParams(fd).toString();
+    var rows = []; fd.forEach(function (v, k) { rows.push(k + ' = "' + v + '"'); });
+    var extra = $('f1-x').value ? '\nالحقل من غير name (قيمته "' + $('f1-x').value + '") اتجاهل.' : '';
+    if (F1.method === 'get') {
+      $('f1-addr').textContent = 'localhost:5000/register?' + qs;
+      $('f1-status').textContent = 'GET: البيانات اتركبت على الـ URL فوق.\n' + rows.join('\n') + extra;
+    } else {
+      $('f1-addr').textContent = 'localhost:5000/register';
+      $('f1-status').textContent = 'POST: البيانات في جسم الطلب والـ URL نضيف.\n' + rows.join('\n') + extra;
+    }
+  });
+  f1Draw();
+
+  /* =====================================================
+     02 · input + label
+     ===================================================== */
+  var F2_TYPES = [
+    { type: 'text', label: 'الاسم', an: 'نص عادي', say: 'الافتراضي. سطر واحد من أي حروف.' },
+    { type: 'password', label: 'كلمة السر', an: 'نقط بدل الحروف', say: 'بيخفي اللي بتكتبه. ملحوظة: ده إخفاء على الشاشة بس، مش تشفير.' },
+    { type: 'email', label: 'الإيميل', an: 'إيميل', say: 'بيتأكد إن الشكل فيه @ وبيفتح كيبورد الإيميل على الموبايل.' },
+    { type: 'number', label: 'العمر', an: 'أرقام بس', say: 'بيقبل أرقام بس، وبيظهر سهمين للزيادة والنقصان. يتحكم فيه min و max و step.' },
+    { type: 'date', label: 'تاريخ الميلاد', an: 'منتقي تاريخ', say: 'بيفتح تقويم لاختيار التاريخ، والقيمة بتتبعت بصيغة yyyy-mm-dd.' },
+    { type: 'color', label: 'لونك المفضل', an: 'منتقي لون', say: 'بيفتح لوحة ألوان، والقيمة بتتبعت كود زي #ff0000.' },
+    { type: 'checkbox', label: 'موافق على الشروط', an: 'اختيار نعم/لا', say: 'مربع بيتعلّم أو لا. لو معلّم بيتبعت value، ولو لأ مش بيتبعت خالص.' }
+  ];
+  var F2 = { i: 0, linked: true };
+  function f2Draw() {
+    var t = F2_TYPES[F2.i];
+    renderLines($('f2-code'), [
+      F2.linked ? '<label for="field">' + t.label + '</label>' : '<label>' + t.label + '</label>',
+      F2.linked ? '<input id="field" type="' + t.type + '">' : '<input type="' + t.type + '">'
+    ], hlHtml);
+    $('f2-prev').innerHTML = '<div class="pr"><label' + (F2.linked ? ' for="field"' : '') + '>' + t.label + '</label>' +
+      '<input' + (F2.linked ? ' id="field"' : '') + ' type="' + t.type + '"></div>';
+    $('p2-an').textContent = t.an; $('p2-say').textContent = t.say;
+    pressOnly($('f2-chips'), F2.i);
+    $('f2-link').setAttribute('aria-pressed', String(F2.linked));
+    $('f2-status').textContent = F2.linked
+      ? 'الـ label مربوط (for="field" = id="field"): دوس على كلمة "' + t.label + '" وهتلاقي الفوكس راح للحقل.'
+      : 'مفيش ربط: دوس على الكلمة ومفيش حاجة هتحصل، وقارئ الشاشة مش هيعرف الحقل ده اسمه إيه.';
+  }
+  F2_TYPES.forEach(function (t, i) {
+    chip($('f2-chips'), 'html', 'type="' + t.type + '"', t.label).addEventListener('click', function () { F2.i = i; f2Draw(); });
+  });
+  $('f2-link').addEventListener('click', function () { F2.linked = !F2.linked; f2Draw(); });
+  f2Draw();
+
+  /* =====================================================
+     03 · attributes
+     ===================================================== */
+  renderLines($('f3-anat'), [
+    '<input type="text" name="username" required>',
+    '<!--       type="text"        ← اسم attribute وقيمته بين تنصيص -->',
+    '<!--       name="username"    ← attribute تاني، بمسافة بينهم -->',
+    '<!--       required           ← boolean: من غير قيمة، وجوده كفاية -->'
+  ], hlHtml);
+
+  var F3_ATTRS = [
+    { id: 'placeholder', line: 'placeholder="اكتب هنا"', role: 'نص تلميح', say: 'نص رمادي جوا الحقل وهو فاضي، وبيختفي أول ما تكتب. مش قيمة حقيقية.' },
+    { id: 'value', line: 'value="Ahmed"', role: 'قيمة ابتدائية', say: 'القيمة اللي الحقل بيبدأ بيها. اليوزر يقدر يعدلها.' },
+    { id: 'required', line: 'required', role: 'إجباري', bool: true, say: 'مينفعش الفورم يتبعت والحقل فاضي. المتصفح بيوقفه ويقولك السبب. دوس Submit وهو فاضي.' },
+    { id: 'disabled', line: 'disabled', role: 'مقفول', bool: true, say: 'الحقل مقفول وباهت، واليوزر مش بيقدر يكتب فيه، والإرسال بيتجاهله تماماً.' },
+    { id: 'readonly', line: 'readonly', role: 'للقراءة بس', bool: true, say: 'اليوزر يشوف القيمة ويقدر يعمل لها select، بس ميعدلهاش. القيمة بتتبعت عادي.' },
+    { id: 'maxlength', line: 'maxlength="5"', role: 'أقصى حروف', say: 'المتصفح بيمنعك تكتب أكتر من العدد ده. جرّب تكتب كلمة طويلة.' }
+  ];
+  var F3 = { on: {}, last: null };
+  function f3Draw() {
+    var lines = [{ t: '<input', p: [] }, { t: '  type="text"', p: ['type'] }, { t: '  name="field"', p: ['name'] }];
+    F3_ATTRS.forEach(function (a) { if (F3.on[a.id]) lines.push({ t: '  ' + a.line, p: [a.id] }); });
+    lines.push({ t: '>', p: [] });
+    renderLines($('f3-code'), lines, hlAttrLines);
+    markLines($('f3-code'), F3.last && F3.on[F3.last] ? F3.last : null);
+
+    var h = '<input type="text" name="field"';
+    F3_ATTRS.forEach(function (a) {
+      if (!F3.on[a.id]) return;
+      var m = /^([\w-]+)(?:="([^"]*)")?$/.exec(a.line);
+      h += ' ' + m[1] + (m[2] !== undefined ? '="' + m[2] + '"' : '');
+    });
+    $('f3-prev').innerHTML = '<form id="f3-form"><div class="pr">' + h + '></div><div class="pr"><button type="submit">Submit</button></div></form>';
+    $('f3-form').addEventListener('submit', f3Submit);
+
+    var on = F3_ATTRS.filter(function (a) { return F3.on[a.id]; });
+    var last = F3.last && F3.on[F3.last] ? F3_ATTRS.filter(function (a) { return a.id === F3.last; })[0] : on[on.length - 1];
+    $('f3-status').textContent = last ? last.id + ': ' + last.say : 'من غير attributes زيادة: حقل نص عادي. شغّل attribute وجرّبه.';
+    Array.prototype.forEach.call($('f3-chips').children, function (b, i) { b.setAttribute('aria-pressed', String(!!F3.on[F3_ATTRS[i].id])); });
+  }
+  function f3Submit(e) {
+    e.preventDefault();
+    var fd = new FormData(e.target), rows = [];
+    fd.forEach(function (v, k) { rows.push(k + ' = "' + v + '"'); });
+    $('f3-status').textContent = 'اتبعت ✓\n' + (rows.length ? rows.join('\n') : 'مفيش حاجة اتبعتت: الحقل disabled فالمتصفح تجاهله.');
+  }
+  F3_ATTRS.forEach(function (a) {
+    var b = chip($('f3-chips'), 'html', a.line, a.role, 'sw');
+    b.addEventListener('click', function () {
+      F3.on[a.id] = !F3.on[a.id];
+      F3.last = F3.on[a.id] ? a.id : null;
+      f3Draw();
+    });
+  });
+  var F3_CARDS = [
+    ['type', 'html', 'نوع الحقل', 'text أو password أو email أو number أو date أو checkbox...'],
+    ['name', 'js', 'اسم الإرسال', 'الاسم اللي القيمة بتتبعت بيه للسيرفر. من غيره مفيش إرسال.'],
+    ['id', 'html', 'معرّف فريد', 'بنربط بيه الـ label (for = id) وبنوصل بيه للعنصر من CSS وJavaScript.'],
+    ['value', 'css', 'القيمة', 'القيمة الابتدائية، وهي كمان اللي بتتبعت.'],
+    ['placeholder', 'css', 'تلميح', 'نص رمادي بيختفي أول ما تكتب.'],
+    ['required', 'js', 'إجباري', 'boolean. الفورم مبيتبعتش والحقل فاضي.'],
+    ['disabled / readonly', 'js', 'مقفول / للقراءة', 'disabled مبيتبعتش. readonly بيتبعت بس مبيتعدلش.'],
+    ['maxlength', 'css', 'أقصى حروف', 'بيمنع كتابة أكتر من العدد ده.'],
+    ['min / max', 'css', 'حدود الأرقام', 'مع type="number" أو "date": أقل وأعلى قيمة مسموحة.'],
+    ['autofocus', 'cs', 'فوكس تلقائي', 'boolean. المؤشر يقف في الحقل أول ما الصفحة تفتح.']
+  ];
+  F3_CARDS.forEach(function (c) { tcard($('f3-cards'), c[1], c[0], c[2], c[3]); });
+  f3Draw();
+
+  /* =====================================================
+     04 · select
+     ===================================================== */
+  var F4_OPTS = [
+    { v: '', t: 'اختار الكورس', cls: '' },
+    { v: '1', t: 'HTML', cls: '' },
+    { v: '2', t: 'CSS', cls: 'selected' },
+    { v: '3', t: 'JavaScript', cls: '' },
+    { v: '4', t: 'C#', cls: 'disabled' }
+  ];
+  var F4_PARTS = [
+    { id: 'select', lbl: '<select>', role: 'القائمة', layer: 'html', hi: 'select', an: 'القائمة كلها',
+      say: 'الحاوية. بتاخد id و name زي الـ input، والـ name هو اسم القيمة اللي بتتبعت. جواها options بس.' },
+    { id: 'option', lbl: '<option>', role: 'اختيار', layer: 'css', hi: 'option', an: 'اختيار واحد',
+      say: 'كل اختيار في القائمة. الكلام بين التاجين هو اللي اليوزر بيشوفه.' },
+    { id: 'value', lbl: 'value', role: 'القيمة', layer: 'js', hi: null, an: 'اللي بيتبعت',
+      say: 'القيمة اللي بتروح للسيرفر لما الاختيار ده يتختار. ممكن تختلف عن النص: اليوزر يشوف "CSS" والسيرفر ياخد 2.' },
+    { id: 'selected', lbl: 'selected', role: 'الافتراضي', layer: 'cs', hi: null, an: 'مختار من الأول',
+      say: 'boolean. الاختيار ده يبقى متعلّم أول ما الصفحة تفتح. لو مفيش selected، أول option هو اللي بيتختار.' },
+    { id: 'disabled', lbl: 'disabled', role: 'ظاهر ومينفعش', layer: 'cs', hi: null, an: 'مقفول',
+      say: 'boolean. الاختيار بيظهر بس مينفعش يتختار. استخدمه للعناوين زي "اختار الكورس".' }
+  ];
+  var F4 = { sel: 'select', multi: false };
+  function f4Code() {
+    var L = [
+      { t: '<label for="course">الكورس</label>', p: ['select'] },
+      { t: '<select id="course" name="course"' + (F4.multi ? ' multiple size="4"' : '') + '>', p: ['select'] }
+    ];
+    F4_OPTS.forEach(function (o) {
+      var t = '  <option value="' + o.v + '"' + (o.cls ? ' ' + o.cls : '') + '>' + o.t + '</option>';
+      var p = ['option', 'value'];
+      if (o.cls) p.push(o.cls);
+      L.push({ t: t, p: p });
+    });
+    L.push({ t: '</select>', p: ['select'] });
+    return L;
+  }
+  function f4Draw() {
+    renderLines($('f4-code'), f4Code(), hlHtml);
+    var part = F4_PARTS.filter(function (x) { return x.id === F4.sel; })[0];
+    markLines($('f4-code'), F4.sel);
+    $('p4-an').textContent = part.an; $('p4-say').textContent = part.say;
+    pressOnly($('f4-chips'), F4_PARTS.indexOf(part));
+    $('f4-multi').setAttribute('aria-pressed', String(F4.multi));
+    $('f4-prev').innerHTML = '<div class="pr"><label for="course">الكورس</label><select id="course" name="course"' + (F4.multi ? ' multiple size="4"' : '') + '>' +
+      F4_OPTS.map(function (o) { return '<option value="' + o.v + '"' + (o.cls ? ' ' + o.cls : '') + '>' + o.t + '</option>'; }).join('') + '</select></div>';
+    markPrev($('f4-prev'), part.hi);
+    $('course').addEventListener('change', f4Status);
+    f4Status();
+  }
+  function f4Status() {
+    var s = $('course'), r = [];
+    Array.prototype.forEach.call(s.selectedOptions, function (o) { r.push('النص "' + o.text + '" ← القيمة اللي بتتبعت "' + o.value + '"'); });
+    $('f4-status').textContent = r.length ? r.join(' | ') : 'مفيش حاجة متختارة.';
+  }
+  F4_PARTS.forEach(function (p) {
+    chip($('f4-chips'), p.layer, p.lbl, p.role).addEventListener('click', function () { F4.sel = p.id; f4Draw(); });
+  });
+  $('f4-multi').addEventListener('click', function () { F4.multi = !F4.multi; f4Draw(); });
+  f4Draw();
+
+  /* =====================================================
+     05 · bootstrap form classes (real Bootstrap in a sandboxed iframe)
+     ===================================================== */
+  var BS_URL = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
+  var F5 = [
+    { id: 'link', lbl: 'bootstrap.css', role: 'ملف Bootstrap (link)', layer: 'js', on: true },
+    { id: 'form-label', lbl: 'form-label', role: 'على label', layer: 'css', on: false,
+      say: 'form-label: مسافة تحت النص.' },
+    { id: 'form-control', lbl: 'form-control', role: 'على input', layer: 'css', on: false,
+      say: 'form-control: الحقل بعرض كامل وحواف مدورة وإطار.' },
+    { id: 'form-select', lbl: 'form-select', role: 'على select', layer: 'css', on: false,
+      say: 'form-select: القائمة بنفس شكل الحقول وسهم Bootstrap.' },
+    { id: 'mb-3', lbl: 'mb-3', role: 'مسافة بين الحقول', layer: 'css', on: false,
+      say: 'mb-3: مسافة بين كل حقل واللي بعده.' },
+    { id: 'btn', lbl: 'btn btn-primary', role: 'على button', layer: 'html', on: false,
+      say: 'btn btn-primary: زرار أزرق بحواف مدورة.' }
+  ];
+  function f5on(id) { return F5.filter(function (s) { return s.id === id; })[0].on; }
+  function f5body() {
+    function c(id, val) { return f5on(id) ? ' class="' + (val || id) + '"' : ''; }
+    return [
+      '  <form>',
+      '    <div' + c('mb-3') + '>',
+      '      <label' + c('form-label') + ' for="n">الاسم</label>',
+      '      <input' + c('form-control') + ' id="n" type="text">',
+      '    </div>',
+      '    <div' + c('mb-3') + '>',
+      '      <label' + c('form-label') + ' for="c">المدينة</label>',
+      '      <select' + c('form-select') + ' id="c">',
+      '        <option>القاهرة</option>',
+      '        <option>الإسكندرية</option>',
+      '      </select>',
+      '    </div>',
+      '    <button' + c('btn', 'btn btn-primary') + ' type="button">حفظ</button>',
+      '  </form>'
+    ];
+  }
+  function f5Status() {
+    if (!f5on('link')) return 'الكلاسات لسه مكتوبة في الـ HTML، بس ملف Bootstrap مش مربوط. الكلاس مجرد اسم، ومفيش CSS يعرف يطبّقه.';
+    var act = F5.filter(function (s) { return s.id !== 'link' && s.on; });
+    if (!act.length) return 'Bootstrap مربوط بس مفيش كلاسات: الفورم شكله خام تقريباً. Bootstrap مبيغيّرش حاجة إلا لو ادّيته اسم الكلاس.';
+    return act.map(function (s) { return s.say; }).join(' ');
+  }
+  function f5Draw() {
+    var link = f5on('link'), linkLine = '  <link rel="stylesheet" href="' + BS_URL + '">';
+    var body = f5body();
+    renderLines($('f5-code'), ['<head>', link ? linkLine : '  <!-- ' + linkLine.trim() + ' -->', '</head>', '<body>'].concat(body, ['</body>']), hlHtml);
+    $('f5-frame').srcdoc = '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
+      (link ? '<link rel="stylesheet" href="' + BS_URL + '">' : '') +
+      '<style>body{margin:0;padding:16px;font-family:sans-serif}</style></head><body>' + body.join('\n') + '</body></html>';
+    $('f5-status').textContent = f5Status();
+  }
+  F5.forEach(function (s) {
+    var b = chip($('f5-chips'), s.layer, s.lbl, s.role, 'sw');
+    b.setAttribute('aria-pressed', String(s.on));
+    b.addEventListener('click', function () { s.on = !s.on; b.setAttribute('aria-pressed', String(s.on)); f5Draw(); });
+  });
+  f5Draw();
+
+  /* =====================================================
+     06 · anchor
+     ===================================================== */
+  var F6_KINDS = [
+    { id: 'abs', lbl: 'https://...', role: 'رابط كامل', layer: 'html', href: 'https://www.google.com', text: 'روح لجوجل', an: 'absolute',
+      say: 'عنوان كامل بيبدأ بـ https://. بيودّي لموقع تاني. استخدمه للمواقع الخارجية.',
+      go: function (b) { return { addr: 'www.google.com', msg: (b ? 'هيفتح جوجل في تاب جديد.' : 'هينقلك لجوجل في نفس التاب.') }; } },
+    { id: 'rel', lbl: 'about.html', role: 'مسار نسبي', layer: 'css', href: 'about.html', text: 'عن الموقع', an: 'relative',
+      say: 'مسار لصفحة في نفس الموقع. المتصفح بيكمله بعنوان الصفحة الحالية. في MVC بنستخدم asp-controller و asp-action بدل ما نكتب المسار بإيدينا.',
+      go: function (b) { return { addr: 'localhost:5000/about.html', msg: (b ? 'هيفتح صفحة about.html في تاب جديد.' : 'هينقلك لصفحة about.html.') }; } },
+    { id: 'frag', lbl: '#contact', role: 'مكان في الصفحة', layer: 'js', href: '#contact', text: 'انزل لقسم التواصل', an: 'fragment',
+      say: 'علامة # وبعدها id العنصر المطلوب. بينزلك لمكانه في نفس الصفحة من غير ما يحمّل صفحة جديدة.',
+      go: function () { return { addr: 'localhost:5000/index.html#contact', msg: 'هيسكرول لحد العنصر اللي id="contact" في نفس الصفحة.' }; } },
+    { id: 'mail', lbl: 'mailto:', role: 'إيميل', layer: 'cs', href: 'mailto:info@example.com', text: 'ابعتلنا إيميل', an: 'email',
+      say: 'بيفتح برنامج الإيميل عند اليوزر ومعبّي العنوان.',
+      go: function () { return { addr: null, msg: 'هيفتح برنامج الإيميل برسالة جديدة لـ info@example.com.' }; } },
+    { id: 'tel', lbl: 'tel:', role: 'مكالمة', layer: 'cs', href: 'tel:+201000000000', text: 'اتصل بينا', an: 'phone',
+      say: 'على الموبايل بيفتح تطبيق الاتصال بالرقم ده جاهز.',
+      go: function () { return { addr: null, msg: 'هيفتح تطبيق الاتصال بالرقم 201000000000+.' }; } },
+    { id: 'dl', lbl: 'download', role: 'تنزيل ملف', layer: 'html', href: 'files/report.pdf', text: 'نزّل التقرير', an: 'download', dl: true,
+      say: 'attribute اسمه download بيخلي المتصفح ينزّل الملف بدل ما يفتحه.',
+      go: function () { return { addr: null, msg: 'هينزّل الملف report.pdf من غير ما يسيب الصفحة.' }; } }
+  ];
+  var F6 = { i: 0, blank: false };
+  function f6Attrs() {
+    var k = F6_KINDS[F6.i], a = ' href="' + k.href + '"';
+    if (k.dl) a += ' download';
+    if (F6.blank) a += ' target="_blank" rel="noopener"';
+    return a;
+  }
+  function f6Draw() {
+    var k = F6_KINDS[F6.i];
+    renderLines($('f6-code'), ['<a' + f6Attrs() + '>' + k.text + '</a>'], hlHtml);
+    $('f6-prev').innerHTML = '<div class="pr"><a' + f6Attrs() + '>' + k.text + '</a></div>';
+    $('f6-addr').textContent = 'localhost:5000/index.html';
+    $('f6-status').textContent = 'دوس على اللينك وشوف المتصفح كان هيعمل إيه.';
+    $('p6-an').textContent = k.an; $('p6-say').textContent = k.say;
+    pressOnly($('f6-chips'), F6.i);
+    $('f6-blank').setAttribute('aria-pressed', String(F6.blank));
+  }
+  $('f6-prev').addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    var r = F6_KINDS[F6.i].go(F6.blank);
+    if (r.addr) $('f6-addr').textContent = r.addr;
+    $('f6-status').textContent = r.msg;
+  });
+  F6_KINDS.forEach(function (k, i) {
+    chip($('f6-chips'), k.layer, k.lbl, k.role).addEventListener('click', function () { F6.i = i; f6Draw(); });
+  });
+  $('f6-blank').addEventListener('click', function () { F6.blank = !F6.blank; f6Draw(); });
+  f6Draw();
+})();
+</script>
+</body>
+</html>

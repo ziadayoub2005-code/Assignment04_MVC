@@ -1,0 +1,17 @@
+﻿@model Department
+
+<!-- Collect User Data -> form -->
+<!-- /Department/SaveAdd?Name=media&Mgrname=Ali -->
+<form action="/Department/SaveAdd" method="get">
+	<div>
+		<!-- Name -->
+		<label>name</label>
+		<input type="text" id="name" name="Name" value="@Model?.Name" class="form-control"/>
+	</div>
+	<div>
+		<!-- Mgr Name -->
+		<label>Manager name</label>
+		<input type="text" id="mgrname" name="Mgrname" value="@Model?.Mgrname" class="form-control"/>
+	</div>
+	<input type="submit" value="Add" class="btn btn-success"/>
+</form>

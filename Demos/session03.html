@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Session 03 · ViewData، ViewModel، Model Binding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Readex+Pro:wght@500;600&display=swap">
+<style>
+/* Layout: عنوان ثم ٥ تبويبات (فصل الاهتمامات / ViewData و ViewBag / ViewModel / Model Binding / Add + HTTP). كل تبويب ديمو صغير شغال. */
+:root {
+  --bg: #0a1020;
+  --surface: #111a30;
+  --surface2: #17223d;
+  --line: #243252;
+  --fg: #e8eefb;
+  --muted: #94a3c4;
+  --accent: #5b93ff;
+  --hl: rgba(91, 147, 255, .22);
+  --ok: #6fd08c;
+  --err: #ff7b7b;
+  --warn: #f4cf57;
+  --code-bg: #0d1528;
+  --code-fg: #cfd9ee;
+  --tk-tag: #ff9a5c;
+  --tk-punc: #7384a8;
+  --tk-attr: #9fd3ff;
+  --tk-str: #a6e3a1;
+  --tk-com: #6f7fa3;
+  --tk-kw: #c79bff;
+  --tk-num: #f4cf57;
+  --tk-ty: #7fd6c2;
+  --display: 'Readex Pro', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f6fc; --surface: #ffffff; --surface2: #eaf0fb; --line: #d3dcee;
+    --fg: #0f1b33; --muted: #55637f; --accent: #2f6fe0; --hl: rgba(47, 111, 224, .14);
+    --ok: #2e7d32; --err: #c62828; --warn: #8f6c00;
+    --code-bg: #f0f3fa; --code-fg: #1d2a44;
+    --tk-tag: #c2410c; --tk-punc: #7a869f; --tk-attr: #0b6fa8; --tk-str: #2e7d32;
+    --tk-com: #7a869f; --tk-kw: #7c3aed; --tk-num: #8f6c00; --tk-ty: #0f766e;
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.7; }
+
+.wrap { max-width: 1100px; margin-inline: auto; padding-inline: 16px; padding-block: 28px 40px; }
+.brand { display: inline-block; direction: ltr; font-family: var(--mono); font-size: .85rem; color: var(--muted); }
+.brand .semi, .foot .semi { color: var(--accent); }
+.title { font-family: var(--display); font-weight: 600; font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.3; margin: 10px 0 8px; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; color: var(--muted); font-size: 1.05rem; }
+.sec-title { font-family: var(--display); font-weight: 600; font-size: 1.4rem; margin: 0; }
+.h3 { font-family: var(--display); font-weight: 600; font-size: 1rem; margin: 0; }
+.small { margin: 0; color: var(--muted); font-size: .88rem; }
+.note { margin: 0; max-width: 72ch; }
+code.i { direction: ltr; unicode-bidi: isolate; font-family: var(--mono); font-size: .88em; color: var(--accent); background: var(--surface2); border-radius: 6px; padding: 1px 6px; }
+
+/* top tabs */
+.modes { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 24px 4px; }
+.mode { appearance: none; font: inherit; color: var(--muted); cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 18px; display: flex; gap: 8px; align-items: baseline; }
+.mode b { font-family: var(--mono); font-weight: 500; font-size: .8rem; color: var(--accent); }
+.mode:hover { background: var(--surface2); }
+.mode[aria-selected="true"] { color: var(--fg); background: var(--surface2); border-color: var(--accent); }
+.panel { display: grid; gap: 16px; margin-top: 18px; }
+
+.say { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.analogy { font-family: var(--display); font-weight: 600; font-size: .95rem; color: var(--accent); white-space: nowrap; }
+.say-text { margin: 0; flex: 1 1 320px; min-width: 0; max-width: 72ch; }
+
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+
+/* code panel */
+.code { border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.fname { padding: 8px 14px; background: var(--surface2); border-bottom: 1px solid var(--line); direction: ltr; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.pre { margin: 0; padding: 12px; direction: ltr; text-align: left; overflow: auto; font-family: var(--mono); font-size: .8rem; line-height: 1.75; color: var(--code-fg); white-space: pre; tab-size: 2; max-height: 420px; }
+.pre .ln { display: block; min-height: 1.75em; padding-inline: 6px; border-radius: 4px; border-left: 3px solid transparent; transition: background .2s; }
+.pre .ln.on { background: var(--hl); border-left-color: var(--accent); }
+.pre .ln.bad { background: rgba(255, 123, 123, .16); border-left-color: var(--err); }
+.pre .ln.good { background: rgba(111, 208, 140, .14); border-left-color: var(--ok); }
+.pre .ln.off { opacity: .4; text-decoration: line-through; }
+.pre .t { color: var(--tk-tag); } .pre .p { color: var(--tk-punc); } .pre .a { color: var(--tk-attr); }
+.pre .s { color: var(--tk-str); } .pre .c { color: var(--tk-com); font-style: italic; } .pre .k { color: var(--tk-kw); }
+.pre .n { color: var(--tk-num); } .pre .ty { color: var(--tk-ty); } .pre .r { color: var(--tk-kw); font-weight: 500; }
+.cap { margin: 0; padding: 8px 14px; font-size: .85rem; color: var(--muted); border-top: 1px solid var(--line); background: var(--surface); }
+
+/* controls */
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { appearance: none; font: inherit; font-size: .92rem; cursor: pointer; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 14px; }
+.btn:hover { background: var(--surface2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn[aria-pressed="true"] { border-color: var(--accent); background: var(--surface2); color: var(--accent); }
+.btn .m { font-family: var(--mono); font-size: .82rem; direction: ltr; unicode-bidi: isolate; }
+.inp { font: inherit; font-family: var(--mono); font-size: .85rem; direction: ltr; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; min-width: 0; }
+.inp:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lbl2 { color: var(--muted); font-size: .88rem; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* 01 boxes */
+.arch { display: grid; grid-template-columns: minmax(0, 1.3fr) auto minmax(0, 1fr) auto minmax(0, .6fr); gap: 10px; align-items: center; }
+.col { display: grid; gap: 8px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; min-width: 0; transition: border-color .25s, background .25s; }
+.box .nm { direction: ltr; text-align: left; font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+.box .q { direction: ltr; text-align: left; font-family: var(--mono); font-size: .76rem; color: var(--code-fg); overflow-wrap: anywhere; }
+.box.edit { border-color: var(--warn); background: rgba(244, 207, 87, .1); }
+.box.edit .nm::after { content: '  ✎ اتعدل هنا'; color: var(--warn); font-family: var(--body); }
+.box.ghost { opacity: .35; border-style: dashed; }
+.db { text-align: center; font-family: var(--mono); font-size: .85rem; }
+.arrow { color: var(--muted); font-size: 1.3rem; text-align: center; }
+.score { font-family: var(--display); font-weight: 600; font-size: 1.15rem; }
+.score b { font-family: var(--mono); color: var(--warn); font-size: 1.4rem; }
+
+/* 02 bag */
+.tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.tbl th, .tbl td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: start; }
+.tbl th { color: var(--muted); font-weight: 500; font-size: .8rem; }
+.tbl .m { font-family: var(--mono); direction: ltr; unicode-bidi: isolate; }
+.tbl tr.flash td { background: var(--hl); }
+.tbl td.win { background: rgba(111, 208, 140, .16); color: var(--ok); font-weight: 600; }
+.tbl td.miss { color: var(--muted); opacity: .6; }
+.tbl td.skip { color: var(--muted); opacity: .35; }
+.out { border-radius: 10px; padding: 10px 14px; background: var(--surface2); display: grid; gap: 4px; }
+.out .expr { direction: ltr; text-align: left; font-family: var(--mono); font-size: .85rem; color: var(--code-fg); overflow-wrap: anywhere; }
+.out .res { font-weight: 600; }
+.out.ok .res { color: var(--ok); } .out.err .res { color: var(--err); } .out.warn .res { color: var(--warn); }
+.out .res .m { font-family: var(--mono); direction: ltr; unicode-bidi: isolate; }
+.pill { display: inline-block; font-family: var(--mono); font-size: .75rem; border-radius: 999px; padding: 0 8px; border: 1px solid var(--line); color: var(--muted); }
+
+/* 03 chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; direction: ltr; }
+.chip { appearance: none; font: inherit; font-family: var(--mono); font-size: .78rem; cursor: pointer; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+.chip:hover { background: var(--surface2); }
+.chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: var(--surface2); }
+.chip.sens { border-style: dashed; }
+.chip.sens::before { content: '🔒 '; }
+.chip.ext[aria-pressed="true"] { border-color: var(--ok); }
+.benefits { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ben { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; gap: 4px; align-content: start; opacity: .45; transition: opacity .25s, border-color .25s; }
+.ben.lit { opacity: 1; border-color: var(--ok); }
+.ben.bad { opacity: 1; border-color: var(--err); }
+.ben .en { direction: ltr; justify-self: start; font-family: var(--mono); font-size: .8rem; color: var(--accent); }
+.ben .q { font-family: var(--display); font-weight: 600; }
+.ben .d { color: var(--muted); font-size: .86rem; }
+.meter { height: 10px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s; }
+
+/* 05 browser */
+.frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
+.bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border-bottom: 1px solid var(--line); }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+.addr { flex: 1; min-width: 0; direction: ltr; font-family: var(--mono); font-size: .78rem; color: var(--muted); background: var(--bg); border-radius: 999px; padding: 3px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pv { background: #fbf7f1; color: #2b2118; padding: 16px 20px; min-height: 270px; font-family: var(--body); direction: ltr; text-align: left; }
+.pv h1 { font-size: 1.2rem; margin: 0 0 10px; }
+.pv table { border-collapse: collapse; width: 100%; font-size: .9rem; margin-bottom: 12px; }
+.pv th, .pv td { border-bottom: 1px solid #e3d9cb; padding: 5px 8px; text-align: left; }
+.pv tr.new td { background: #e4f4e6; }
+.pv a { color: #2f6fe0; cursor: pointer; text-decoration: underline; }
+.pv label { display: block; font-size: .85rem; margin-top: 8px; }
+.pv input { width: 100%; font: inherit; padding: 5px 8px; border: 1px solid #cdbfab; border-radius: 6px; background: #fff; color: #2b2118; }
+.pv .pbtn { margin-top: 12px; font: inherit; cursor: pointer; background: #2f6fe0; color: #fff; border: 0; border-radius: 6px; padding: 6px 16px; }
+.pv .vmsg { color: #c62828; font-size: .85rem; margin-top: 4px; }
+.pv .big { font-size: 2.2rem; font-weight: 700; color: #c62828; margin: 30px 0 4px; }
+.status { padding: 10px 14px; font-size: .9rem; color: var(--muted); border-top: 1px solid var(--line); background: var(--surface); min-height: 3.6em; }
+.log { direction: ltr; padding: 8px 14px; font-family: var(--mono); font-size: .76rem; color: var(--muted); border-top: 1px solid var(--line); background: var(--code-bg); min-height: 5.5em; max-height: 9em; overflow: auto; }
+.log div { white-space: nowrap; }
+.log .g { color: var(--ok); } .log .y { color: var(--warn); } .log .e { color: var(--err); } .log .v { color: var(--tk-kw); }
+
+.tcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; align-content: start; }
+.tcard .ext { direction: ltr; justify-self: start; font-family: var(--mono); font-size: .85rem; color: var(--accent); }
+.tcard .d { color: var(--muted); font-size: .92rem; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+
+.steps-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: s; }
+.steps-list li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; font-size: .92rem; }
+.steps-list li::before { content: counter(s); font-family: var(--mono); font-weight: 500; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface2); color: var(--accent); font-size: .8rem; }
+
+.notes { margin-top: 32px; display: grid; gap: 12px; }
+.foot { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); direction: ltr; font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 860px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .arch { grid-template-columns: minmax(0, 1fr); }
+  .arch .arrow { transform: rotate(90deg); }
+}
+@media (max-width: 640px) { .trio, .benefits { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">DotNetWithElwakeel<span class="semi">;</span></div>
+  <h1 class="title">Session 03: البيانات بتروح للفيو وبترجع منه إزاي؟</h1>
+  <p class="lede">ديمو سريع لكل أفكار السيشن: فصل الاهتمامات، ViewData و ViewBag، الـ ViewModel، الـ Model Binding، وصفحة الإضافة بـ GET و POST. جرّب بإيدك في كل تبويب.</p>
+
+  <div class="modes" role="tablist" aria-label="أقسام الديمو">
+    <button class="mode" role="tab" data-p="1" aria-selected="true" type="button"><b>01</b>Controller و Model</button>
+    <button class="mode" role="tab" data-p="2" aria-selected="false" type="button"><b>02</b>ViewData و ViewBag</button>
+    <button class="mode" role="tab" data-p="3" aria-selected="false" type="button"><b>03</b>ViewModel</button>
+    <button class="mode" role="tab" data-p="4" aria-selected="false" type="button"><b>04</b>Model Binding</button>
+    <button class="mode" role="tab" data-p="5" aria-selected="false" type="button"><b>05</b>Add و GET/POST</button>
+  </div>
+
+  <!-- ============ 01: separation of concerns ============ -->
+  <section class="panel" id="p1" role="tabpanel">
+    <h2 class="sec-title">ليه البزنس لوجيك مايتكتبش جوا الكنترولر؟</h2>
+    <div class="say"><span class="analogy">الفكرة</span><p class="say-text">الكنترولر <b>بيهندل الريكويست وبينسق</b>، والموديل هو <b>حاوية البزنس لوجيك</b>. جرّب الوضعين، وبعدين اطلب تعديل على الكويري وعدّ هتعدل في كام مكان.</p></div>
+    <div class="ctrls">
+      <span class="lbl2">الكود فين؟</span>
+      <button class="btn" type="button" data-arch="mixed" aria-pressed="true">جوا الكنترولر</button>
+      <button class="btn" type="button" data-arch="soc" aria-pressed="false">مفصول في الموديل</button>
+    </div>
+    <div class="arch">
+      <div class="col" id="a-ctrls"></div>
+      <div class="arrow">←</div>
+      <div class="col" id="a-model"></div>
+      <div class="arrow">←</div>
+      <div class="box db">🗄️ Database</div>
+    </div>
+    <div class="ctrls">
+      <button class="btn primary" type="button" id="a-change">طلب تعديل: رتّب الأقسام بالاسم</button>
+      <button class="btn" type="button" id="a-reset">رجّع</button>
+      <span class="score" id="a-score"></span>
+    </div>
+    <p class="note small" id="a-say"></p>
+  </section>
+
+  <!-- ============ 02: ViewData / ViewBag ============ -->
+  <section class="panel" id="p2" role="tabpanel" hidden>
+    <h2 class="sec-title">الـ Model شايل كائن واحد بس… الباقي يروح فين؟</h2>
+    <div class="say"><span class="analogy">شنطة السفر</span><p class="say-text"><code class="i">return View(employee)</code> بيبعت موظف واحد. عنوان الصفحة والتقييم بنحطهم في <b>شنطة</b> واحدة: <code class="i">ViewData</code> بيفتحها كـ Dictionary، و <code class="i">ViewBag</code> بيفتحها كـ dynamic. نفس الشنطة.</p></div>
+    <div class="grid2">
+      <div class="card">
+        <h3 class="h3">1. Controller: حط حاجة في الشنطة</h3>
+        <div class="row">
+          <input class="inp" id="b-key" value="PageTitle" size="12" aria-label="Key">
+          <span class="lbl2">=</span>
+          <input class="inp" id="b-val" value="بيانات الموظف" size="14" aria-label="Value">
+        </div>
+        <div class="ctrls">
+          <button class="btn" type="button" id="b-set-vd"><span class="m">ViewData["key"] = …</span></button>
+          <button class="btn" type="button" id="b-set-vb"><span class="m">ViewBag.key = …</span></button>
+        </div>
+        <div class="code"><div class="fname">EmployeeController.cs</div><pre class="pre" id="b-code"></pre></div>
+      </div>
+      <div class="card">
+        <h3 class="h3">🧳 جوا الشنطة (ViewDataDictionary)</h3>
+        <table class="tbl"><thead><tr><th>Key <span class="pill">string</span></th><th>Value <span class="pill">object</span></th><th>النوع الحقيقي</th><th>اتحط بـ</th></tr></thead><tbody id="b-bag"></tbody></table>
+        <h3 class="h3">2. View: اقرا من الشنطة</h3>
+        <div class="row">
+          <span class="lbl2">Key</span><input class="inp" id="b-rkey" value="Rate" size="12" aria-label="Key للقراءة">
+        </div>
+        <div class="ctrls">
+          <button class="btn" type="button" data-read="raw">ViewData من غير Cast</button>
+          <button class="btn" type="button" data-read="cast">ViewData + Cast</button>
+          <button class="btn" type="button" data-read="bag">ViewBag</button>
+        </div>
+        <div class="out" id="b-out"><span class="small">اختار طريقة قراءة…</span></div>
+      </div>
+    </div>
+    <div class="trio">
+      <div class="tcard"><span class="ext">Type Casting</span><span class="d">القيمة متخزنة كـ object، فلازم تعمل Cast قبل ما تستخدمها كرقم أو نص.</span></div>
+      <div class="tcard"><span class="ext">Boxing / Unboxing</span><span class="d">لما تحط int في object بيحصل Boxing، ولما ترجعه بيحصل Unboxing. ده Overhead على الأداء.</span></div>
+      <div class="tcard"><span class="ext">No compile-time checking</span><span class="d">جرّب تقرا <code class="i">Rat</code> أو <code class="i">Titel</code>: الكومبايلر مش هيقول حاجة، والغلط هيبان في الران تايم.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03: ViewModel ============ -->
+  <section class="panel" id="p3" role="tabpanel" hidden>
+    <h2 class="sec-title">ابني ViewModel على مقاس الفيو</h2>
+    <div class="say"><span class="analogy">الحل الاحترافي</span><p class="say-text">كلاس Custom معمول للعرض بس، ومش مربوط بجدول. اختار من الـ Entity اللي الفيو محتاجه بس، وضيف بيانات من مصادر تانية، وشوف الكلاس والـ Mapping بيتكتبوا لوحدهم.</p></div>
+    <div class="grid2">
+      <div class="card">
+        <h3 class="h3">من جدول <code class="i">Employee</code> (15 بروبرتي)</h3>
+        <div class="chips" id="v-props"></div>
+        <h3 class="h3">من مصادر تانية / أسماء مختلفة</h3>
+        <div class="chips" id="v-extra"></div>
+        <div class="row"><span class="lbl2" id="v-count"></span></div>
+        <div class="meter"><i id="v-meter"></i></div>
+        <p class="small" id="v-warn"></p>
+      </div>
+      <div class="code"><div class="fname">ViewModels/EmployeeWithExtraInfoViewModel.cs</div><pre class="pre" id="v-class"></pre></div>
+    </div>
+    <div class="benefits" id="v-ben"></div>
+    <div class="grid2">
+      <div class="code"><div class="fname">EmployeeController.cs · Manual Mapping</div><pre class="pre" id="v-map"></pre></div>
+      <div class="card">
+        <h3 class="h3">خطوات التنفيذ</h3>
+        <ol class="steps-list">
+          <li><span>اعمل فولدر <code class="i">ViewModels</code>.</span></li>
+          <li><span>سمّي الكلاس باسم واضح ينتهي بـ <code class="i">ViewModel</code>.</span></li>
+          <li><span>اعمل <b>Manual Mapping</b> في الكنترولر من الموديل والسورسز التانية.</span></li>
+          <li><span>ابعت كائن الـ ViewModel للفيو.</span></li>
+        </ol>
+        <div class="ctrls"><button class="btn" type="button" id="v-imp" aria-pressed="false">ضيف الـ namespace في _ViewImports.cshtml</button></div>
+        <div class="code"><div class="fname" id="v-vfile">Views/Employee/Details.cshtml</div><pre class="pre" id="v-view"></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04: Model Binding ============ -->
+  <section class="panel" id="p4" role="tabpanel" hidden>
+    <h2 class="sec-title">الموديل بايندر بيدور على كل باراميتر فين؟</h2>
+    <div class="say"><span class="analogy">بالترتيب</span><p class="say-text">لكل باراميتر في الأكشن بيدور على <b>نفس الاسم</b> (من غير ما يفرق Capital و Small) في: <b>Form Data</b> ← <b>Route Values</b> ← <b>Query String</b>، ولو مالقاش يدي <b>Default</b>. عدّل الريكويست وشوف مين بيكسب.</p></div>
+    <div class="ctrls">
+      <span class="lbl2">سيناريو جاهز:</span>
+      <button class="btn" type="button" data-mb="0">Form بيكسب الـ Query</button>
+      <button class="btn" type="button" data-mb="1">name attribute غلط</button>
+      <button class="btn" type="button" data-mb="2">GET من غير حاجة</button>
+      <button class="btn" type="button" data-mb="3">مش رقم</button>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3 class="h3">الريكويست</h3>
+        <div class="row">
+          <button class="btn" type="button" data-meth="GET" aria-pressed="false"><span class="m">GET</span></button>
+          <button class="btn" type="button" data-meth="POST" aria-pressed="true"><span class="m">POST</span></button>
+          <input class="inp" id="m-url" style="flex:1" aria-label="URL">
+        </div>
+        <p class="small">Route: <code class="i">{controller}/{action}/{id?}</code></p>
+        <div id="m-form" class="card" style="background:var(--surface2)">
+          <span class="lbl2">Form Data (في الـ POST بس)</span>
+          <div class="row"><span class="m lbl2" style="direction:ltr">&lt;input name="</span><input class="inp" data-f="0n" size="8" aria-label="name 1"><span class="lbl2" style="direction:ltr">" value="</span><input class="inp" data-f="0v" size="8" aria-label="value 1"><span class="lbl2">"&gt;</span></div>
+          <div class="row"><span class="m lbl2" style="direction:ltr">&lt;input name="</span><input class="inp" data-f="1n" size="8" aria-label="name 2"><span class="lbl2" style="direction:ltr">" value="</span><input class="inp" data-f="1v" size="8" aria-label="value 2"><span class="lbl2">"&gt;</span></div>
+        </div>
+      </div>
+      <div class="code"><div class="fname">EmployeeController.cs</div><pre class="pre" id="m-code"></pre></div>
+    </div>
+    <div class="card">
+      <table class="tbl" id="m-tbl"></table>
+      <p class="small" id="m-say"></p>
+    </div>
+  </section>
+
+  <!-- ============ 05: Add + HTTP verbs ============ -->
+  <section class="panel" id="p5" role="tabpanel" hidden>
+    <h2 class="sec-title">صفحة الإضافة: أكشنين، GET و POST</h2>
+    <div class="say"><span class="analogy">جرّب</span><p class="say-text">دوس <b>Add New</b>، جرّب تبعت الفورم والاسم فاضي، وبعدين بالاسم. وجرّب تفتح <code class="i">/Department/SaveAdd</code> من شريط العنوان مباشرة، وشيل <code class="i">[HttpPost]</code> وشوف الفرق.</p></div>
+    <div class="ctrls">
+      <button class="btn" type="button" id="c-direct">اكتب <span class="m">/Department/SaveAdd</span> في المتصفح (GET)</button>
+      <button class="btn" type="button" id="c-attr" aria-pressed="true"><span class="m">[HttpPost]</span> شغال</button>
+      <button class="btn" type="button" id="c-reset">ابدأ من الأول</button>
+    </div>
+    <div class="grid2">
+      <div class="frame">
+        <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="addr" id="c-addr"></div></div>
+        <div class="pv" id="c-page"></div>
+        <div class="status" id="c-status"></div>
+        <div class="log" id="c-log"></div>
+      </div>
+      <div class="code"><div class="fname">DepartmentController.cs</div><pre class="pre" id="c-code" style="max-height:none"></pre></div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2 class="sec-title">ملاحظات للمذاكرة 💡</h2>
+    <div class="trio">
+      <div class="tcard"><span class="ext">RedirectToAction</span><span class="d">بيخلي المتصفح يعمل ريكويست جديد تمامًا (302 وبعده GET). شوفه في لوج تبويب 05.</span></div>
+      <div class="tcard"><span class="ext">dynamic في ViewBag</span><span class="d">الكومبايلر مابيفحصش الأنواع. بيوفر وقت في الكتابة، بس أي غلط بيظهر في الران تايم.</span></div>
+      <div class="tcard"><span class="ext">_ViewImports.cshtml</span><span class="d">أداة تنظيمية: تكتب الـ using مرة واحدة بدل ما تكررها في كل فيو.</span></div>
+    </div>
+  </section>
+
+  <div class="foot">ASP.NET Core · Session03 · DotNetWithElwakeel<span class="semi">;</span></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var all = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* ---------- highlighters (one line each) ---------- */
+  function hlCs(src) {
+    return esc(src).replace(/(\/\/.*$)|("(?:[^"\\]|\\.)*")|(\[Http\w+\])|\b(public|class|return|if|new|var|null|int|string|bool|decimal|object|dynamic|get|set|nameof|using|namespace)\b|\b(IActionResult|Controller|Employee|Department|DateTime|List|\w+ViewModel)\b|(\b\d+\b)/g,
+      function (m, c, st, at, kw, ty, n) {
+        if (c) return '<span class=c>' + c + '</span>';
+        if (st) return '<span class=s>' + st + '</span>';
+        if (at) return '<span class=a>' + at + '</span>';
+        if (kw) return '<span class=k>' + kw + '</span>';
+        if (ty) return '<span class=ty>' + ty + '</span>';
+        return '<span class=n>' + n + '</span>';
+      });
+  }
+  function hlRazor(src) {
+    var s = esc(src).replace(/&lt;(\/?)([\w-]+)([^&]*?)&gt;/g, function (m, sl, name, attrs) {
+      attrs = attrs.replace(/([\w-]+)=("[^"]*")/g, '<span class=a>$1</span>=<span class=s>$2</span>');
+      return '<span class=p>&lt;' + sl + '</span><span class=t>' + name + '</span>' + attrs + '<span class=p>&gt;</span>';
+    });
+    return s.replace(/@(model|using)\b/g, '<span class=r>@$1</span>').replace(/@(?!model|using)([\w.]+)/g, '<span class=r>@$1</span>');
+  }
+  // lines may end with ‹key› so the demos can highlight them
+  function render(el, src, hl) {
+    el.innerHTML = src.replace(/^\n|\n$/g, '').split('\n').map(function (l) {
+      var m = l.match(/^(.*?)\s*‹([\w-]*)›$/), t = m ? m[1] : l, k = m ? m[2] : '';
+      return '<span class="ln" data-k="' + k + '">' + hl(t) + '</span>';
+    }).join('');
+  }
+  function mark(el, keys, cls) {
+    all('.ln', el).forEach(function (n) { n.classList.remove('on', 'bad', 'good'); });
+    Object.keys(keys || {}).forEach(function (k) {
+      all('.ln[data-k="' + k + '"]', el).forEach(function (n) { n.classList.add(keys[k]); });
+    });
+  }
+  function pressGroup(sel, btn) { all(sel).forEach(function (x) { x.setAttribute('aria-pressed', String(x === btn)); }); }
+
+  /* ---------- top tabs ---------- */
+  var modeBtns = all('.mode');
+  modeBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      modeBtns.forEach(function (x) {
+        var on = x === b;
+        x.setAttribute('aria-selected', String(on));
+        $('p' + x.getAttribute('data-p')).hidden = !on;
+      });
+    });
+  });
+
+  /* =====================================================
+     01 · separation of concerns
+     ===================================================== */
+  var PLACES = ['DepartmentController.Index', 'DepartmentController.Edit', 'ReportController.Summary', 'HomeController.Dashboard'];
+  var arch = 'mixed', changed = false;
+  function q() { return '_context.Departments.Where(d => !d.IsDeleted)' + (changed ? '.OrderBy(d => d.Name)' : '') + '.ToList()'; }
+  function drawArch() {
+    var mixed = arch === 'mixed';
+    $('a-ctrls').innerHTML = PLACES.map(function (p) {
+      return '<div class="box' + (changed && mixed ? ' edit' : '') + '"><span class="nm">' + p + '()</span><span class="q">' +
+        esc(mixed ? q() : '_logic.GetAll()') + '</span></div>';
+    }).join('');
+    $('a-model').innerHTML = '<div class="box' + (mixed ? ' ghost' : '') + (changed && !mixed ? ' edit' : '') +
+      '"><span class="nm">Models/DepartmentLogic.GetAll()</span><span class="q">' + esc(mixed ? '(مفيش طبقة موديل)' : q()) + '</span></div>';
+    var n = changed ? (mixed ? PLACES.length : 1) : 0;
+    $('a-score').innerHTML = changed ? 'عدّلت في <b>' + n + '</b> ' + (n === 1 ? 'مكان واحد' : 'أماكن') : '';
+    $('a-say').textContent = !changed ? 'الأربع أكشنز محتاجين نفس قائمة الأقسام.'
+      : mixed ? 'كل كنترولر كاتب الكويري بنفسه، فأي تغيير لازم يتكرر في كل مكان، ولو نسيت مكان واحد هيطلع فيه Bug.'
+      : 'الكنترولرز بيكلموا الموديل بس، فالتعديل حصل في مكان واحد. ده اللي بيسهّل الـ Maintenance.';
+  }
+  all('[data-arch]').forEach(function (b) {
+    b.addEventListener('click', function () { arch = b.getAttribute('data-arch'); pressGroup('[data-arch]', b); drawArch(); });
+  });
+  $('a-change').addEventListener('click', function () { changed = true; drawArch(); });
+  $('a-reset').addEventListener('click', function () { changed = false; drawArch(); });
+  drawArch();
+
+  /* =====================================================
+     02 · ViewData / ViewBag
+     ===================================================== */
+  var bag = [
+    { key: 'Title', val: 'Employees', type: 'string', by: 'ViewData' },
+    { key: 'Rate', val: 5, type: 'int', by: 'ViewBag' }
+  ];
+  var lastSet = '';
+  function lit(e) { return e.type === 'int' ? String(e.val) : '"' + e.val + '"'; }
+  function drawBag() {
+    $('b-bag').innerHTML = bag.map(function (e) {
+      return '<tr' + (e.key === lastSet ? ' class="flash"' : '') + '><td class="m">"' + esc(e.key) + '"</td><td class="m">' + esc(lit(e)) +
+        '</td><td class="m">' + (e.type === 'int' ? 'int (boxed)' : 'string') + '</td><td class="m">' + e.by + '</td></tr>';
+    }).join('');
+    render($('b-code'), [
+      'public IActionResult Details(int id)',
+      '{',
+      '    Employee employee = _logic.GetById(id);'
+    ].concat(bag.map(function (e) {
+      var line = e.by === 'ViewData' ? '    ViewData["' + e.key + '"] = ' + lit(e) + ';' : '    ViewBag.' + e.key + ' = ' + lit(e) + ';';
+      return line + ' ‹' + (e.key === lastSet ? 'new' : '') + '›';
+    })).concat([
+      '',
+      '    return View(employee); // Model = كائن واحد بس',
+      '}'
+    ]).join('\n'), hlCs);
+    mark($('b-code'), { 'new': 'on' });
+  }
+  function setBag(by) {
+    var k = $('b-key').value.trim(), v = $('b-val').value.trim();
+    if (!k) return;
+    if (by === 'ViewBag' && !/^[A-Za-z_]\w*$/.test(k)) {
+      $('b-out').className = 'out err';
+      $('b-out').innerHTML = '<span class="expr">ViewBag.' + esc(k) + '</span><span class="res">❌ مينفعش: الـ Key في ViewBag لازم يكون اسم صالح لبروبرتي. استخدم ViewData.</span>';
+      return;
+    }
+    var isInt = /^-?\d+$/.test(v);
+    var e = { key: k, val: isInt ? Number(v) : v, type: isInt ? 'int' : 'string', by: by };
+    var i = bag.findIndex(function (x) { return x.key.toLowerCase() === k.toLowerCase(); });
+    if (i >= 0) bag[i] = e; else bag.push(e);
+    lastSet = k;
+    drawBag();
+  }
+  $('b-set-vd').addEventListener('click', function () { setBag('ViewData'); });
+  $('b-set-vb').addEventListener('click', function () { setBag('ViewBag'); });
+
+  function readBag(how) {
+    var k = $('b-rkey').value.trim() || 'Rate';
+    var e = bag.find(function (x) { return x.key.toLowerCase() === k.toLowerCase(); });
+    var vd = 'ViewData["' + k + '"]', vb = 'ViewBag.' + k;
+    var expr, cls, res, why;
+    if (!e) {
+      expr = how === 'raw' ? '@' + vd : how === 'cast' ? '@(((string)' + vd + ').ToUpper())' : '@' + vb + '.ToUpper()';
+      if (how === 'raw') { cls = 'warn'; res = '⚠ null: الصفحة طلعت فاضية'; }
+      else { cls = 'err'; res = '💥 Runtime: <span class="m">' + (how === 'cast' ? 'NullReferenceException' : 'RuntimeBinderException') + '</span>'; }
+      why = 'مفيش Key اسمه "' + esc(k) + '" في الشنطة. الكومبايلر <b>ماقالش حاجة</b> لأن الـ Key مجرد نص (No compile-time checking).';
+    } else {
+      var cross = (how === 'bag') !== (e.by === 'ViewBag');
+      var note = (cross ? ' اتحط بـ ' + e.by + ' واتقرا بـ ' + (how === 'bag' ? 'ViewBag' : 'ViewData') + ': نفس الشنطة ✓' : '') +
+        (e.key !== k ? ' (الـ Key مش حساس لحالة الحروف: "' + esc(k) + '" = "' + esc(e.key) + '")' : '');
+      if (e.type === 'int') {
+        expr = how === 'raw' ? '@(' + vd + ' + 1)' : how === 'cast' ? '@((int)' + vd + ' + 1)' : '@(' + vb + ' + 1)';
+        var sum = '<span class="m">' + (e.val + 1) + '</span>';
+        if (how === 'raw') { cls = 'err'; res = '❌ Compile error <span class="m">CS0019</span>: مينفعش تجمع object + int'; why = 'القيمة راجعة object، لازم Cast الأول.'; }
+        else if (how === 'cast') { cls = 'ok'; res = '✓ ' + sum; why = 'عملنا Cast لـ int، وده Unboxing (Overhead صغير).' + note; }
+        else { cls = 'ok'; res = '✓ ' + sum; why = 'ViewBag راجع dynamic، والران تايم هو اللي عرف إنه int. من غير Cast.' + note; }
+      } else {
+        expr = how === 'raw' ? '@' + vd + '.ToUpper()' : how === 'cast' ? '@(((string)' + vd + ').ToUpper())' : '@' + vb + '.ToUpper()';
+        var up = '<span class="m">' + esc(String(e.val).toUpperCase()) + '</span>';
+        if (how === 'raw') { cls = 'err'; res = '❌ Compile error <span class="m">CS1061</span>: object مافيهوش ToUpper'; why = 'الـ Value نوعها object، فلازم Cast لـ string.'; }
+        else if (how === 'cast') { cls = 'ok'; res = '✓ ' + up; why = 'Cast لـ string وبعدين ToUpper.' + note; }
+        else { cls = 'ok'; res = '✓ ' + up; why = 'dynamic: النوع اتعرف في الران تايم.' + note; }
+      }
+    }
+    $('b-out').className = 'out ' + cls;
+    $('b-out').innerHTML = '<span class="expr">' + esc(expr) + '</span><span class="res">' + res + '</span><span class="small">' + why + '</span>';
+  }
+  all('[data-read]').forEach(function (b) { b.addEventListener('click', function () { readBag(b.getAttribute('data-read')); }); });
+  drawBag();
+
+  /* =====================================================
+     03 · ViewModel
+     ===================================================== */
+  var PROPS = [
+    ['int', 'Id'], ['string', 'FirstName'], ['string', 'LastName'], ['string', 'Email'], ['string', 'PasswordHash', 1],
+    ['decimal', 'Salary', 1], ['string', 'NationalId', 1], ['string', 'Phone'], ['string', 'Address'], ['DateTime', 'HireDate'],
+    ['int', 'DeptId'], ['bool', 'IsDeleted'], ['DateTime', 'CreatedAt'], ['int', 'ManagerId'], ['string', 'BankAccount', 1]
+  ];
+  var EXTRA = [
+    { ty: 'string', n: 'FullName', src: 'emp.FirstName + " " + emp.LastName', kind: 'rename' },
+    { ty: 'string', n: 'DepartmentName', src: '_deptLogic.GetById(emp.DeptId).Name', kind: 'source' },
+    { ty: 'int', n: 'Rate', src: '_rateLogic.GetRate(emp.Id)', kind: 'source' },
+    { ty: 'string', n: 'PageTitle', src: '"بيانات الموظف"', kind: 'page' }
+  ];
+  var vSel = { Email: 1, FullName: 1, DepartmentName: 1, Rate: 1 }, vImp = false;
+  $('v-props').innerHTML = PROPS.map(function (p) {
+    return '<button type="button" class="chip' + (p[2] ? ' sens' : '') + '" data-v="' + p[1] + '">' + p[1] + '</button>';
+  }).join('');
+  $('v-extra').innerHTML = EXTRA.map(function (x) {
+    return '<button type="button" class="chip ext" data-v="' + x.n + '">+ ' + x.n + '</button>';
+  }).join('');
+  var BEN = [
+    { en: 'Customization', q: 'كائن خفيف', key: 'cust' },
+    { en: 'Aggregation', q: 'تجميع من مصادر مختلفة', key: 'agg' },
+    { en: 'Security', q: 'الـ Schema مستخبي', key: 'sec' },
+    { en: 'SoC', q: 'موديل العرض منفصل', key: 'soc' }
+  ];
+  function drawVM() {
+    all('[data-v]').forEach(function (b) { b.setAttribute('aria-pressed', String(!!vSel[b.getAttribute('data-v')])); });
+    var props = PROPS.filter(function (p) { return vSel[p[1]]; });
+    var extras = EXTRA.filter(function (x) { return vSel[x.n]; });
+    var sens = props.filter(function (p) { return p[2]; });
+    var count = props.length + extras.length;
+    var w = function (t) { return (t + '        ').slice(0, 8); };
+    render($('v-class'), ['namespace MyApp.ViewModels', '{', '    public class EmployeeWithExtraInfoViewModel', '    {']
+      .concat(props.map(function (p) { return '        public ' + w(p[0]) + ' ' + p[1] + ' { get; set; }' + (p[2] ? ' // 🔒 حساس! ‹s›' : ''); }))
+      .concat(extras.map(function (x) { return '        public ' + w(x.ty) + ' ' + x.n + ' { get; set; } ‹x›'; }))
+      .concat(count ? [] : ['        // فاضي… اختار بروبرتيز'])
+      .concat(['    }', '}']).join('\n'), hlCs);
+    mark($('v-class'), { s: 'bad', x: 'good' });
+    var needDept = extras.some(function (x) { return x.kind === 'source'; });
+    render($('v-map'), ['public IActionResult Details(int id)', '{', '    Employee emp = _logic.GetById(id);', '',
+      '    var vm = new EmployeeWithExtraInfoViewModel', '    {']
+      .concat(props.map(function (p) { return '        ' + p[1] + ' = emp.' + p[1] + ',' + (p[2] ? ' ‹s›' : ''); }))
+      .concat(extras.map(function (x) { return '        ' + x.n + ' = ' + x.src + ', ‹x›'; }))
+      .concat(['    };', '', '    return View(vm);', '}']).join('\n'), hlCs);
+    mark($('v-map'), { s: 'bad', x: 'good' });
+    $('v-count').textContent = 'بيتبعت للفيو ' + count + ' بروبرتي بدل 15';
+    $('v-meter').style.width = Math.min(100, count / 15 * 100) + '%';
+    $('v-warn').innerHTML = sens.length ? '<span style="color:var(--err)">🔒 بتبعت بيانات حساسة للفيو: ' + sens.map(function (p) { return p[1]; }).join('، ') + '</span>' : 'مفيش بيانات حساسة خارجة ✓';
+    var state = {
+      cust: count > 0 && count < 8 ? 'lit' : '',
+      agg: needDept ? 'lit' : '',
+      sec: sens.length ? 'bad' : (vSel.FullName ? 'lit' : ''),
+      soc: 'lit'
+    };
+    var desc = {
+      cust: count >= 8 ? 'بقى تقيل تقريبًا زي الـ Entity' : count + ' بروبرتي بس، فالكائن خفيف وسريع',
+      agg: needDept ? 'بيانات من أكتر من جدول في كلاس واحد' : 'ضيف DepartmentName أو Rate',
+      sec: sens.length ? 'فيه بيانات حساسة! شيلها' : vSel.FullName ? 'FullName اسم مش موجود كعمود' : 'مفيش حاجة حساسة، وجرّب FullName',
+      soc: 'Validation الفيو هنا من غير ما نلمس كلاس الداتابيز'
+    };
+    $('v-ben').innerHTML = BEN.map(function (b) {
+      return '<div class="ben ' + state[b.key] + '"><span class="en">' + b.en + '</span><span class="q">' + b.q + '</span><span class="d">' + desc[b.key] + '</span></div>';
+    }).join('');
+    var first = props[0] ? props[0][1] : extras[0] ? extras[0].n : 'Email';
+    $('v-vfile').textContent = vImp ? 'Views/_ViewImports.cshtml + Details.cshtml' : 'Views/Employee/Details.cshtml';
+    render($('v-view'), (vImp ? ['@* _ViewImports.cshtml (مرة واحدة لكل الفيوز) *@ ‹i›', '@using MyApp.ViewModels ‹i›', '', '@* Details.cshtml *@', '@model EmployeeWithExtraInfoViewModel ‹m›']
+      : ['@model MyApp.ViewModels.EmployeeWithExtraInfoViewModel ‹m›'])
+      .concat(['', '<h1>@Model.' + first + '</h1>']).join('\n'), hlRazor);
+    mark($('v-view'), vImp ? { i: 'good', m: 'on' } : { m: 'bad' });
+  }
+  all('[data-v]').forEach(function (b) {
+    b.addEventListener('click', function () { var k = b.getAttribute('data-v'); if (vSel[k]) delete vSel[k]; else vSel[k] = 1; drawVM(); });
+  });
+  $('v-imp').addEventListener('click', function () { vImp = !vImp; this.setAttribute('aria-pressed', String(vImp)); drawVM(); });
+  drawVM();
+
+  /* =====================================================
+     04 · Model Binding
+     ===================================================== */
+  var MB = [
+    { meth: 'POST', url: '/Employee/Details/7?name=Sara&age=30', f: [['Name', 'Ahmed'], ['Age', '25']] },
+    { meth: 'POST', url: '/Employee/Details/7', f: [['EmpName', 'Ahmed'], ['Age', '25']] },
+    { meth: 'GET', url: '/Employee/Details', f: [['Name', 'Ahmed'], ['Age', '25']] },
+    { meth: 'GET', url: '/Employee/Details/abc?age=thirty&NAME=Omar', f: [['Name', ''], ['Age', '']] }
+  ];
+  var PARAMS = [['int', 'id'], ['string', 'name'], ['int', 'age']];
+  var mbMeth = 'POST';
+  render($('m-code'), [
+    '// app.MapControllerRoute("default",',
+    '//     "{controller}/{action}/{id?}");',
+    '',
+    'public class EmployeeController : Controller',
+    '{',
+    '    public IActionResult Details(int id, string name, int age) ‹sig›',
+    '    {',
+    '        // id, name, age جايين جاهزين من الموديل بايندر',
+    '        return View();',
+    '    }',
+    '}'
+  ].join('\n'), hlCs);
+  mark($('m-code'), { sig: 'on' });
+  function loadMB(i) {
+    var s = MB[i];
+    mbMeth = s.meth; $('m-url').value = s.url;
+    s.f.forEach(function (f, j) { document.querySelector('[data-f="' + j + 'n"]').value = f[0]; document.querySelector('[data-f="' + j + 'v"]').value = f[1]; });
+    drawMB();
+  }
+  function lookup(pairs, key) {
+    for (var i = 0; i < pairs.length; i++) if (pairs[i][0].toLowerCase() === key) return pairs[i];
+    return null;
+  }
+  function drawMB() {
+    all('[data-meth]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-meth') === mbMeth)); });
+    $('m-form').style.opacity = mbMeth === 'POST' ? 1 : .4;
+    var raw = $('m-url').value.trim(), qi = raw.indexOf('?');
+    var path = (qi >= 0 ? raw.slice(0, qi) : raw).split('/').filter(Boolean);
+    var form = mbMeth === 'POST' ? [0, 1].map(function (j) {
+      return [document.querySelector('[data-f="' + j + 'n"]').value.trim(), document.querySelector('[data-f="' + j + 'v"]').value];
+    }).filter(function (p) { return p[0]; }) : [];
+    var route = [['controller', path[0] || 'Home'], ['action', path[1] || 'Index']].concat(path[2] !== undefined ? [['id', decodeURIComponent(path[2])]] : []);
+    var query = [];
+    if (qi >= 0) new URLSearchParams(raw.slice(qi + 1)).forEach(function (v, k) { query.push([k, v]); });
+    var SRC = [['Form Data', form], ['Route Values', route], ['Query String', query]];
+    var html = '<thead><tr><th>Parameter</th>' + SRC.map(function (s) { return '<th>' + s[0] + '</th>'; }).join('') + '<th>Default</th><th>القيمة النهائية</th></tr></thead><tbody>';
+    var says = [];
+    PARAMS.forEach(function (p) {
+      var found = -1, hit = null, cells = [];
+      SRC.forEach(function (s, si) {
+        var h = lookup(s[1], p[1]);
+        if (found < 0 && h) { found = si; hit = h; }
+        cells.push(h);
+      });
+      var def = p[0] === 'int' ? '0' : 'null', final, fcls = '';
+      if (hit) {
+        if (p[0] === 'int' && !/^-?\d+$/.test(hit[1].trim())) {
+          final = '0 ⚠'; fcls = ' style="color:var(--warn)"';
+          says.push('<b>' + p[1] + '</b>: لقى "' + esc(hit[1]) + '" في ' + SRC[found][0] + ' بس مش رقم، فرجع 0 والـ ModelState بقى Invalid.');
+        } else final = p[0] === 'string' ? (hit[1] === '' ? 'null' : '"' + esc(hit[1]) + '"') : hit[1].trim();
+        if (hit[0] !== p[1]) says.push('<b>' + p[1] + '</b>: الـ Key كان "' + esc(hit[0]) + '" واتربط عادي، لأنه Case-insensitive.');
+      } else {
+        final = def;
+        says.push('<b>' + p[1] + '</b>: مالقاش Key بالاسم ده في أي مكان، فأخد الـ Default (' + def + ').');
+      }
+      html += '<tr><td class="m">' + p[0] + ' ' + p[1] + '</td>' + cells.map(function (h, si) {
+        var c = si === found ? 'win' : found >= 0 && si > found ? 'skip' : 'miss';
+        return '<td class="m ' + c + '">' + (h ? esc(h[0]) + '=' + esc(h[1] || '""') : '—') + '</td>';
+      }).join('') + '<td class="m ' + (found < 0 ? 'win' : 'skip') + '">' + def + '</td><td class="m"' + fcls + '><b>' + final + '</b></td></tr>';
+    });
+    $('m-tbl').innerHTML = html + '</tbody>';
+    var fn = form.map(function (f) { return f[0]; });
+    if (mbMeth === 'POST' && fn.length && !fn.some(function (n) { return n.toLowerCase() === 'name'; }))
+      says.push('القاعدة الذهبية: الـ name attribute في الـ HTML لازم يطابق اسم الباراميتر. "' + esc(fn.join('", "')) + '" مش هيوصل لـ <code class="i">name</code>.');
+    if (!says.length) says.push('كل باراميتر لقى قيمته. الأخضر هو المصدر اللي كسب، والباهت اتجاهل لأن اللي قبله كسب.');
+    $('m-say').innerHTML = says.join('<br>');
+  }
+  all('[data-mb]').forEach(function (b) { b.addEventListener('click', function () { loadMB(Number(b.getAttribute('data-mb'))); }); });
+  all('[data-meth]').forEach(function (b) { b.addEventListener('click', function () { mbMeth = b.getAttribute('data-meth'); drawMB(); }); });
+  $('m-url').addEventListener('input', drawMB);
+  all('[data-f]').forEach(function (i) { i.addEventListener('input', drawMB); });
+  loadMB(0);
+
+  /* =====================================================
+     05 · Add (GET + POST)
+     ===================================================== */
+  var depts, page, addr, form, msg, newRow, hasPost;
+  var CODE5 = [
+    'public class DepartmentController : Controller',
+    '{',
+    '    public IActionResult Index() ‹idx›',
+    '    {',
+    '        return View(_businessLogic.GetAll()); ‹idx›',
+    '    }',
+    '',
+    '    [HttpGet] ‹add›',
+    '    public IActionResult Add() ‹add›',
+    '    {',
+    '        return View(); ‹add›',
+    '    }',
+    '',
+    '    [HttpPost] ‹attr›',
+    '    public IActionResult SaveAdd(Department dept) ‹post›',
+    '    {',
+    '        if (dept.Name != null) ‹post›',
+    '        {',
+    '            _businessLogic.Add(dept); ‹ok›',
+    '            return RedirectToAction(nameof(Index)); ‹ok›',
+    '        }',
+    '        return View("Add", dept); ‹fail›',
+    '    }',
+    '}'
+  ].join('\n');
+  function log(line, cls) { $('c-log').insertAdjacentHTML('beforeend', '<div class="' + (cls || '') + '">' + esc(line) + '</div>'); $('c-log').scrollTop = 1e6; }
+  function status(t) { $('c-status').innerHTML = t; }
+  function drawC(keys) {
+    $('c-addr').textContent = 'https://localhost:5001' + addr;
+    var p = $('c-page');
+    if (page === 'index') {
+      p.innerHTML = '<h1>Departments</h1><table><thead><tr><th>Name</th><th>Manager</th></tr></thead><tbody>' +
+        depts.map(function (d, i) { return '<tr' + (i === newRow ? ' class="new"' : '') + '><td>' + esc(d.Name) + '</td><td>' + esc(d.ManagerName || '') + '</td></tr>'; }).join('') +
+        '</tbody></table><a id="c-add">+ Add New</a>';
+      $('c-add').addEventListener('click', goAdd);
+    } else if (page === 'add') {
+      p.innerHTML = '<h1>Add Department</h1><form id="c-form">' +
+        '<label>Name</label><input name="Name" value="' + esc(form.Name || '') + '">' + (msg ? '<div class="vmsg">' + msg + '</div>' : '') +
+        '<label>Manager Name</label><input name="ManagerName" value="' + esc(form.ManagerName || '') + '">' +
+        '<button class="pbtn" type="submit">Create</button></form>';
+      $('c-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        submit({ Name: this.Name.value, ManagerName: this.ManagerName.value });
+      });
+    } else {
+      p.innerHTML = '<div class="big">405</div><h1>Method Not Allowed</h1><p>The action SaveAdd only accepts POST.</p>';
+    }
+    render($('c-code'), CODE5, hlCs);
+    if (!hasPost) all('.ln[data-k="attr"]', $('c-code')).forEach(function (n) { n.classList.add('off'); });
+    mark($('c-code'), keys);
+  }
+  function goIndex(viaRedirect) {
+    page = 'index'; addr = '/Department/Index'; msg = '';
+    log('GET  /Department/Index   → 200 OK' + (viaRedirect ? '  (ريكويست جديد من المتصفح)' : ''), 'g');
+  }
+  function goAdd() {
+    page = 'add'; addr = '/Department/Add'; form = {}; msg = ''; newRow = -1;
+    log('GET  /Department/Add     → 200 OK  View()', 'g');
+    status('<b>المرحلة الأولى (GET):</b> أكشن بسيط بيرجع الفيو اللي فيه الفورم بس، والرابط جه من Anchor Tag في صفحة الـ Index.');
+    drawC({ add: 'on' });
+  }
+  function submit(data) {
+    var dept = { Name: data.Name.trim() || null, ManagerName: data.ManagerName.trim() || null };
+    addr = '/Department/SaveAdd';
+    log('POST /Department/SaveAdd  Name=' + (data.Name || '') + '&ManagerName=' + (data.ManagerName || ''), 'v');
+    if (dept.Name !== null) {
+      depts.push(dept); newRow = depts.length - 1;
+      log('     → 302 Redirect  Location: /Department/Index', 'y');
+      goIndex(true);
+      status('<b>نجاح:</b> اتحفظ عن طريق البزنس لوجيك، و <code class="i">RedirectToAction</code> رجّع 302، فالمتصفح عمل <b>ريكويست GET جديد</b> للـ Index. (لو عملت Refresh مش هيتبعت POST تاني.)');
+      drawC({ post: 'on', ok: 'good' });
+    } else {
+      page = 'add'; form = data; msg = 'Name is required';
+      log('     → 200 OK  View("Add", dept)', 'e');
+      status('<b>فشل (الاسم فاضي):</b> رجعنا نفس صفحة الـ Add <b>ومعاها الكائن dept</b>، فالـ Manager Name اللي كتبته لسه موجود ومش هتكتبه تاني. لاحظ إن الـ URL لسه SaveAdd.');
+      drawC({ post: 'on', fail: 'bad' });
+    }
+  }
+  function direct() {
+    addr = '/Department/SaveAdd';
+    if (hasPost) {
+      page = '405';
+      log('GET  /Department/SaveAdd → 405 Method Not Allowed', 'e');
+      status('<b>[HttpPost]</b> مانع أي ريكويست GET، فالسيرفر رجّع <b>405</b> والأكشن ماتنفذش أصلًا.');
+      drawC({ attr: 'bad' });
+    } else {
+      page = 'add'; form = {}; msg = 'Name is required';
+      log('GET  /Department/SaveAdd → 200 OK  (الأكشن اتنفذ!)', 'y');
+      status('⚠ من غير <code class="i">[HttpPost]</code> أكشن الحفظ اتنفذ من رابط مباشر. هنا ماحصلش ضرر لأن الاسم فاضي، بس أي أكشن بيكتب في الداتابيز لازم يتقفل على POST.');
+      drawC({ post: 'bad', fail: 'on' });
+    }
+  }
+  function resetC() {
+    depts = [{ Name: 'IT', ManagerName: 'Mona' }, { Name: 'HR', ManagerName: 'Karim' }];
+    form = {}; msg = ''; newRow = -1; hasPost = true;
+    $('c-attr').setAttribute('aria-pressed', 'true');
+    $('c-attr').innerHTML = '<span class="m">[HttpPost]</span> شغال';
+    $('c-log').innerHTML = '';
+    goIndex(false);
+    status('دي صفحة الـ Index. دوس <b>+ Add New</b>.');
+    drawC({ idx: 'on' });
+  }
+  $('c-direct').addEventListener('click', direct);
+  $('c-reset').addEventListener('click', resetC);
+  $('c-attr').addEventListener('click', function () {
+    hasPost = !hasPost;
+    this.setAttribute('aria-pressed', String(hasPost));
+    this.innerHTML = '<span class="m">[HttpPost]</span> ' + (hasPost ? 'شغال' : 'متشال');
+    status(hasPost ? 'رجّعنا <code class="i">[HttpPost]</code>.' : 'شلنا <code class="i">[HttpPost]</code>. جرّب تفتح SaveAdd من المتصفح دلوقتي.');
+    drawC({ attr: hasPost ? 'on' : 'bad' });
+  });
+  resetC();
+})();
+</script>
+</body>
+</html>

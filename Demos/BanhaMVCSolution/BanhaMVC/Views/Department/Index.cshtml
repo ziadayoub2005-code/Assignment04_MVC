@@ -1,0 +1,33 @@
+﻿<!-- GUI : ALL Depts -->
+<!-- Table -->
+<!-- in view represent data ? -->
+<!-- C# Prop - View -->
+<!-- all views : Razor Page -->
+<!-- C# Prop : Model : dynamic : Implicit type local var(var-dynamic) -->
+<!-- in Run time : Model : List<Dep> -->
+
+<!-- Clean Code - Errors - Slow -->
+
+<!-- Razor Syntax : Model - bind - List<Department> -->
+<!-- model + Data type : String type View -->
+<!-- once View -->
+<!-- Strong type View -->
+@model List<Department>
+
+<a href="/Department/Add" class="btn btn-primary mb-3">New</a>
+
+<table class="table table-hover table-bordered">
+	<tr>
+		<th>No</th>
+		<th>Name</th>
+		<th>EmpCount</th>
+	</tr>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@item.Id</td>
+			<td>@item.Name</td>
+			<td>@item?.Employees?.Count</td>
+		</tr>
+	}
+</table>

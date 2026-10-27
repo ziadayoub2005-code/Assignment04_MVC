@@ -1,0 +1,12 @@
+﻿@model EmpDetailsViewModel
+
+<h2>@Model.EmpName</h2>
+<h2>@Model.DeptName</h2>
+<h2>@Model.Status</h2>
+<h2>@Model.Grade</h2>
+<select>
+	@foreach (var item in Model.SkillSet)
+	{
+		<option>@item</option>
+	}
+</select>

@@ -1,0 +1,27 @@
+﻿<!-- strong type View  -->
+@model Employee
+
+<h2>@Model?.Name</h2>
+<h2>@Model?.Title</h2>
+<h2>@Model?.Age</h2>
+
+<!-- get info(Read) -->
+<!-- ViewData C# Prop -->
+<!-- 1-Clean Code : Read right(compilation error) - more errors -->
+<!-- 2-Operations > Boxing and UnBoxing, Developing -->
+<!-- 3-Type casting -->
+
+<!-- ViewBag ?! -->
+<!-- 1-Clean Code : Read right(compilation error) - more errors -->
+
+
+<h2>@ViewBag.Statu</h2>
+<h2>@(ViewBag.grade + 10)</h2>
+@* <h2>@ViewData["skills"]</h2> *@
+<select>
+	@foreach (var item in ViewBag.skills)
+	{
+		<option>@item</option>
+	}
+</select>
+

@@ -1,0 +1,38 @@
+﻿<h1 style="color:red">Hello World</h1>
+
+<!-- Html + Css/js ! -->
+<style>
+	h1 {
+		color: red
+	}
+</style>
+<script>
+	console.log("Hello");
+</script>
+<!-- Razor syntax -->
+<!-- Html + Cs ! -->
+<!-- razor block -->
+@{
+	int X = 3;
+	int y = X + 7;
+}
+
+<!-- inline decalre -->
+<h2>@X</h2>
+@y
+
+<!-- Conditions -->
+@if (X > y)
+{
+	<h2>X is bigger than y</h2>
+}
+else
+{
+	<h2>X=@X is less than y=@y</h2>
+}
+
+<!-- For statement -->
+@for (int i = 1; i <= 10; i++)
+{
+	<li>@i</li>
+}
